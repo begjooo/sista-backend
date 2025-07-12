@@ -3,7 +3,7 @@ import express from "express";
 export const router = express.Router();
 
 router.get('/', (req, res) => {
-  res.send('Selamat Datang');
+  res.send('selamat datang di halaman dosen');
 });
 
 router.get('/data', (req, res) => {
