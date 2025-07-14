@@ -9,7 +9,7 @@ export async function getDosenList() {
   console.log(`getDosenList()`);
   const dosenDb = await getDosenDb();
   const dosenList = dosenDb.filter((item) => {
-    delete item.password;
+    // delete item.password;
     return item.job === 'dosen';
   });
 
@@ -19,7 +19,7 @@ export async function getDosenList() {
 export async function getDosenData(username) {
   const list = await getDosenDb();
   const data = list.find((item) => {
-    delete item.password;
+    // delete item.password;
     return item.username === username;
   });
 

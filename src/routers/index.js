@@ -8,7 +8,6 @@ router.post('/login', async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
   const loginResult = await login(username, password);
-  console.log(loginResult)
 
   if (loginResult) {
     res.cookie('jwt', loginResult.token, {

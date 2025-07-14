@@ -1,5 +1,5 @@
-import { getDosenDb } from "./dosen.js";
-import { getMhsDb } from "./mhs.js";
+import { getDosenDb, getDosenList } from "./dosen.js";
+import { getMhsDb, getMhsList } from "./mhs.js";
 import jwt from "jsonwebtoken";
 
 const { JsonWebTokenError } = jwt;
@@ -32,7 +32,7 @@ async function checkEntity(access, username, password) {
     db = await getMhsDb();
   };
 
-  const entity = await db.find((item) => item.username === username && item.password === password);
+  const entity = db.find((item) => item.username === username && item.password === password);
 
   if (entity) {
     entity.access = access;
@@ -48,10 +48,10 @@ async function checkEntity(access, username, password) {
 export async function login(username, password) {
   console.log(`[${username}] try to login`);
   const access = await identifyAccess(username);
-  console.log(access);
+
   if (access !== AccessEnum[0]) {
     let result = await checkEntity(access, username, password);
-    console.log(result);
+
     if (result) {
       const token = jwt.sign({
         username: result.username,
@@ -59,6 +59,8 @@ export async function login(username, password) {
       }, 'secret');
 
       return { username: result.username, access: result.access, token };
+    } else {
+      return 0;
     }
   } else {
     return 0;
@@ -66,22 +68,19 @@ export async function login(username, password) {
 };
 
 export async function getLoggedUser(cookie) {
-  const decode = jwt.verify(cookie, 'secret');
+  const claim = jwt.verify(cookie, 'secret');
 
-  if (!decode.username) {
+  if (!claim.username) {
     return 0;
   } else {
     let db = [];
-    if (decode.access === AccessEnum[1] || decode.access === AccessEnum[2]) {
+    if (claim.access === AccessEnum[1] || claim.access === AccessEnum[2]) {
       db = await getDosenDb();
-    } else if (decode.access === AccessEnum[3]) {
+    } else if (claim.access === AccessEnum[3]) {
       db = await getMhsDb();
     };
 
-    const user = db.find((item) => {
-      delete item.password;
-      return item.username === decode.username;
-    });
+    const user = db.find((item) => item.username === claim.username);
 
     return user;
   };

@@ -10,7 +10,7 @@ export async function getMhsList() {
   const mhsDb = await getMhsDb();
 
   let list = mhsDb.map((item) => {
-    delete item.password;
+    // delete item.password;
     return item;
   });
 
@@ -20,7 +20,7 @@ export async function getMhsList() {
 export async function getMhsData(username) {
   const list = await getMhsDb();
   const data = list.find((item) => {
-    delete item.password;
+    // delete item.password;
     return item.username === username;
   });
   
