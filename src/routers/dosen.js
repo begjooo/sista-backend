@@ -3,10 +3,6 @@ import { getDosenData, getDosenList } from "../handler/dosen.js";
 
 export const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.send('selamat datang di halaman dosen');
-});
-
 router.get('/list', async (req, res) => {
   const list = await getDosenList();
   res.send(list);

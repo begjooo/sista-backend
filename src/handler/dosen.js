@@ -22,6 +22,7 @@ export async function getDosenData(username) {
     // delete item.password;
     return item.username === username;
   });
+  console.log(data)
 
   if (!data) {
     return 0;
