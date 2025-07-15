@@ -1,6 +1,6 @@
 import express from "express";
-import { getMhsData, getMhsList } from "../handler/mhs.js";
 import { getLoggedUser } from "../handler/auth.js";
+import { getMhsData, getMhsList, pengajuanSempro } from "../handler/mhs.js";
 
 export const router = express.Router();
 
@@ -15,7 +15,7 @@ router.get('/data/:username', async (req, res) => {
   res.send(data);
 });
 
-router.post('/sempro', (req, res) => {
-  console.log(req.body);
+router.post('/sempro', async (req, res) => {
+  const pengajuan = await pengajuanSempro(req.body);
   res.send(true);
 });
