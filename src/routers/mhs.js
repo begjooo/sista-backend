@@ -16,6 +16,7 @@ router.get('/data/:username', async (req, res) => {
 });
 
 router.post('/sempro', async (req, res) => {
-  const pengajuan = await pengajuanSempro(req.body);
+  console.log(req.body);
+  // const pengajuan = await pengajuanSempro(req.body);
   res.send(true);
 });
