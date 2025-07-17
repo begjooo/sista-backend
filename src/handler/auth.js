@@ -1,5 +1,5 @@
-import { getDosenDb, getDosenList } from "./dosen.js";
-import { getMhsDb, getMhsList } from "./mhs.js";
+import { getDosenDb, getDosenList } from "./dosen/data.js";
+import { getMhsDb, getMhsList } from "./mhs/data.js";
 import jwt from "jsonwebtoken";
 
 const { JsonWebTokenError } = jwt;
@@ -38,6 +38,7 @@ async function checkEntity(access, username, password) {
     entity.access = access;
     return {
       username: entity.username,
+      job: entity.job,
       access: entity.access,
     };
   } else {
@@ -55,10 +56,11 @@ export async function login(username, password) {
     if (result) {
       const token = jwt.sign({
         username: result.username,
+        job: result.job,
         access: result.access
       }, 'secret');
 
-      return { username: result.username, access: result.access, token };
+      return { username: result.username, job: result.job, access: result.access, token };
     } else {
       return 0;
     }

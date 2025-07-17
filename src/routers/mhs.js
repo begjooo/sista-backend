@@ -1,6 +1,7 @@
 import express from "express";
-import { getLoggedUser } from "../handler/auth.js";
-import { getMhsData, getMhsList, pengajuanSempro } from "../handler/mhs.js";
+import { getMhsData, getMhsList } from "../handler/mhs/data.js";
+import { pengajuanTa } from "../handler/mhs/pengajuanTa.js";
+import { permintaanBimbingan } from "../handler/dosen/pengajuanTa.js";
 
 export const router = express.Router();
 
@@ -15,8 +16,11 @@ router.get('/data/:username', async (req, res) => {
   res.send(data);
 });
 
-router.post('/sempro', async (req, res) => {
-  console.log(req.body);
-  // const pengajuan = await pengajuanSempro(req.body);
-  res.send(true);
+router.post('/ta/pengajuan', async (req, res) => {
+  const ajuanMhs = req.body;
+  const statusTa = await pengajuanTa(ajuanMhs);
+  // console.log(statusTa);
+  const statusPbb = await permintaanBimbingan(ajuanMhs.username, ajuanMhs.pbb);
+  // console.log(pengajuan);
+  res.send(statusTa);
 });

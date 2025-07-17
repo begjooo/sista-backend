@@ -1,4 +1,4 @@
-import { dosenDb } from "../db/dummyDosen.js";
+import { dosenDb } from "../../db/dummyDosen.js";
 
 export async function getDosenDb() {
   console.log(`getDosenDb()`);
@@ -22,7 +22,7 @@ export async function getDosenData(username) {
     // delete item.password;
     return item.username === username;
   });
-  console.log(data)
+  console.log(data);
 
   if (!data) {
     return 0;

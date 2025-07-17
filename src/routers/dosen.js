@@ -1,5 +1,5 @@
 import express from "express";
-import { getDosenData, getDosenList } from "../handler/dosen.js";
+import { getDosenData, getDosenList } from "../handler/dosen/data.js";
 
 export const router = express.Router();
 
