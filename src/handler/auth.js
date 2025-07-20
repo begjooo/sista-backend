@@ -1,5 +1,5 @@
-import { getDosenDb, getDosenList } from "./dosen/data.js";
-import { getMhsDb, getMhsList } from "./mhs/data.js";
+import { getData, getFullData } from "../db/psql/handler.js";
+// import { getMhsDb, getMhsList } from "./mhs/data.js";
 import jwt from "jsonwebtoken";
 
 const { JsonWebTokenError } = jwt;
@@ -7,39 +7,41 @@ const { JsonWebTokenError } = jwt;
 const AccessEnum = {
   0: 'error',
   1: 'admin',
-  2: 'dosen/tendik',
-  3: 'mahasiswa',
+  2: 'dosen',
+  3: 'tendik',
+  4: 'mahasiswa',
 };
 
 async function identifyAccess(username) {
-  console.log(`identify access (admin, dosen/tendik, or mhs)`);
+  console.log(`identify access (admin, dosen, tendik, or mhs)`);
   if (username.length === 18 && username === '121314151617181910') {
     return AccessEnum[1];
   } else if (username.length === 6) {
     return AccessEnum[2];
-  } else if (username.length === 3) {
+  } else if (username.length === 8) {
     return AccessEnum[3];
+  } else if (username.length === 3) {
+    return AccessEnum[4];
   } else {
     return AccessEnum[0];
   };
 };
 
 async function checkEntity(access, username, password) {
-  let db = [];
+  console.log(`checkEntity()`);
+  let user = null;
   if (access === AccessEnum[1] || access === AccessEnum[2]) {
-    db = await getDosenDb();
+    user = await getFullData(`dosen`, username);
   } else if (access === AccessEnum[3]) {
-    db = await getMhsDb();
+    user = await getFullData(`tendik`, username);
+  } else if (access === AccessEnum[4]) {
+    user = await getFullData(`mahasiswa`, username);
   };
 
-  const entity = db.find((item) => item.username === username && item.password === password);
-
-  if (entity) {
-    entity.access = access;
+  if (user.password === password) {
     return {
-      username: entity.username,
-      job: entity.job,
-      access: entity.access,
+      username: user.username,
+      job: user.job,
     };
   } else {
     return 0;
@@ -57,10 +59,9 @@ export async function login(username, password) {
       const token = jwt.sign({
         username: result.username,
         job: result.job,
-        access: result.access
       }, 'secret');
 
-      return { username: result.username, job: result.job, access: result.access, token };
+      return { username: result.username, job: result.job, token };
     } else {
       return 0;
     }
@@ -75,14 +76,14 @@ export async function getLoggedUser(cookie) {
   if (!claim.username) {
     return 0;
   } else {
-    let db = [];
-    if (claim.access === AccessEnum[1] || claim.access === AccessEnum[2]) {
-      db = await getDosenDb();
-    } else if (claim.access === AccessEnum[3]) {
-      db = await getMhsDb();
+    let user = null;
+    if (claim.job === 'admin' || claim.job === 'dosen') {
+      user = await getData(`dosen`, claim.username);
+    } else if (claim.job === 'tendik') {
+      user = await getData(`tendik`, claim.username);
+    } else {
+      user = await getData(`mahasiswa`, claim.username);
     };
-
-    const user = db.find((item) => item.username === claim.username);
 
     return user;
   };

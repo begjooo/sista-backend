@@ -1,9 +1,12 @@
 import express from "express";
 import cors from "cors";
 import { router as routerIndex } from "./src/routers/index.js";
+import { router as routerAdmin } from "./src/routers/admin.js";
 import { router as routerDosen } from "./src/routers/dosen.js";
 import { router as routerMhs } from "./src/routers/mhs.js";
 import cookieParser from "cookie-parser";
+import { psqlConn } from "./src/db/psql/conn.js";
+import { insertData, setMandatoryTables } from "./src/db/psql/handler.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -15,7 +18,12 @@ app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:5173'],
 }));
 
+await psqlConn();
+await setMandatoryTables();
+await insertData(`dosen`, `(username, password, name, fullname, job)`, `('121314151617181910', 'admin', 'Admin', 'Admin', 'admin')`);
+
 app.use('/', routerIndex);
+app.use('/admin', routerAdmin);
 app.use('/dosen', routerDosen);
 app.use('/mhs', routerMhs);
 

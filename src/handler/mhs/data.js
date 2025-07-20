@@ -1,33 +1,31 @@
-import { mahasiswaDb } from "../../db/dummyMhs.js";
+// import { mahasiswaDb } from "../../db/dummyMhs.js";
 
-export async function getMhsDb() {
-  console.log(`getMhsDb()`);
-  return mahasiswaDb;
-};
+// export async function getMhsDb() {
+//   console.log(`getMhsDb()`);
+//   return mahasiswaDb;
+// };
 
-export async function getMhsList() {
-  console.log(`getMhsList()`);
-  const mhsDb = await getMhsDb();
+// export async function getMhsList() {
+//   console.log(`getMhsList()`);
+//   const mhsDb = await getMhsDb();
 
-  let list = mhsDb.map((item) => {
-    // delete item.password;
-    return item;
-  });
+//   let list = mhsDb.map((item) => {
+//     return item;
+//   });
 
-  return list;
-};
+//   return list;
+// };
 
-export async function getMhsData(username) {
-  console.log(`getMhsData()`);
-  const list = await getMhsDb();
-  const data = list.find((item) => {
-    // delete item.password;
-    return item.username === username;
-  });
+// export async function getMhsData(username) {
+//   console.log(`getMhsData()`);
+//   const list = await getMhsDb();
+//   const data = list.find((item) => {
+//     return item.username === username;
+//   });
 
-  if (!data) {
-    return 0;
-  } else {
-    return data;
-  };
-};
+//   if (!data) {
+//     return 0;
+//   } else {
+//     return data;
+//   };
+// };

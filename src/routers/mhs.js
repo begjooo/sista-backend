@@ -1,18 +1,18 @@
 import express from "express";
-import { getMhsData, getMhsList } from "../handler/mhs/data.js";
 import { pengajuanTa } from "../handler/mhs/pengajuanTa.js";
 import { permintaanBimbingan } from "../handler/dosen/pengajuanTa.js";
+import { getData, getFullData } from "../db/psql/handler.js";
 
 export const router = express.Router();
 
 router.get('/list', async (req, res) => {
-  const list = await getMhsList();
+  // const list = await getMhsList();
   res.send(list);
 });
 
 router.get('/data/:username', async (req, res) => {
   const username = req.params.username;
-  const data = await getMhsData(username);
+  const data = await getData(`mahasiswa`, username);
   res.send(data);
 });
 

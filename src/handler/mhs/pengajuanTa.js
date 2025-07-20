@@ -1,4 +1,4 @@
-import { getMhsData } from "./data.js";
+// import { getMhsData } from "./data.js";
 
 const statusPengajuan = {
   0: 'Belum',
@@ -9,7 +9,7 @@ const statusPengajuan = {
 
 async function pengajuanJudul(username, kbk, judul, deskripsi, status, pbb) {
   console.log(`pengajuanJudul()`);
-  const ajuanMhs = await getMhsData(username);
+  // const ajuanMhs = await getMhsData(username);
   ajuanMhs.ta.pengajuan = { judul, deskripsi, kbk, status, pbb };
   console.log(ajuanMhs);
   return ajuanMhs;

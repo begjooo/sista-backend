@@ -1,8 +1,8 @@
-import { getMhsData } from "../mhs/data.js";
-import { getDosenData } from "./data.js";
+// import { getMhsData } from "../mhs/data.js";
+// import { getDosenData } from "./data.js";
 
 async function ajukanBimbingan(mhsUsername, dosenUsername) {
-  const mhs = await getMhsData(mhsUsername);
+  // const mhs = await getMhsData(mhsUsername);
   // console.log(mhs);
 
   const mhsData = {
@@ -13,7 +13,7 @@ async function ajukanBimbingan(mhsUsername, dosenUsername) {
     deskripsi: mhs.ta.pengajuan.deskripsi,
   };
 
-  const dosen = await getDosenData(dosenUsername);
+  // const dosen = await getDosenData(dosenUsername);
   const isMhsRequested = await dosen.permintaanBimbingan.find((item) => item.username === mhsUsername);
   const isMhsBimbingan = await dosen.bimbingan.find((item) => item.username === mhsUsername);
   // console.log('isMhsRequested', isMhsRequested);
