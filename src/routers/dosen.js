@@ -23,6 +23,7 @@ router.get('/data/:username', async (req, res) => {
 router.post('/data/:username/profile/edit', async (req, res) => {
   const username = req.params.username;
   const newData = req.body;
+  console.log(newData);
 
   let fullname = '';
 

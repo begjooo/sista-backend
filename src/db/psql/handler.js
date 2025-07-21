@@ -66,6 +66,7 @@ export async function setMandatoryTables() {
       name: `pengajuan`,
       query: `(
         id bigserial primary key,
+        mhs_id varchar(9),
         status varchar(20),
         judul varchar(200),
         deskrisi varchar(1000),
@@ -104,7 +105,7 @@ export async function insertData(tableName, columnQuery, valueQuery) {
 export async function getFullDb(tableName) {
   console.log(`getFullDb()`);
   try {
-    const result = await psql.query(`select * from ${tableName};`);
+    const result = await psql.query(`select * from ${tableName} where job = 'dosen';`);
     return result;
   } catch (error) {
     console.log(`psql: ${error.message}`);
@@ -117,7 +118,7 @@ export async function getDb(tableName) {
   try {
     const result = await psql.query(`select 
       username, kbk, minat, kode, fullname, jabatan_fungsional, job
-      from ${tableName};`);
+      from ${tableName} where job = 'dosen';`);
     return result;
   } catch (error) {
     console.log(`psql: ${error.message}`);
