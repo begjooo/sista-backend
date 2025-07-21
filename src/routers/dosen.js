@@ -44,6 +44,15 @@ router.post('/data/:username/profile/edit', async (req, res) => {
   res.send(true);
 });
 
+router.post('/data/:username/profile/edit/password', async (req, res) => {
+  const username = req.params.username;
+  const newPassword = req.body.password;
+
+  // await updateData(`dosen`, username, `password = '${newPassword}'`);
+
+  res.send(true);
+});
+
 router.get('/data-full/:username', async (req, res) => {
   const username = req.params.username;
   const data = await getFullData(`dosen`, username);
