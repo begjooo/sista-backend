@@ -67,11 +67,12 @@ export async function setMandatoryTables() {
       query: `(
         id bigserial primary key,
         mhs_id varchar(9),
-        status varchar(20),
+        minat varchar[],
         judul varchar(200),
-        deskrisi varchar(1000),
+        deskripsi varchar(1000),
         calon_pbb_utama_id varchar[],
         calon_pbb_pendamping_id varchar[],
+        status varchar(20),
         waktu_kadaluarsa date
       );`,
     },
