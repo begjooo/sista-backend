@@ -21,7 +21,7 @@ export async function checkTable(tableName) {
   };
 };
 
-export async function setMandatoryTables() {
+export async function psqlInit() {
   const TableEnum = [
     {
       name: `dosen`,
@@ -30,16 +30,13 @@ export async function setMandatoryTables() {
         password varchar(100),
         name varchar(100),
         email varchar(255),
-        kbk varchar(100),
-        minat varchar[],
         kode varchar(10),
+        kbk varchar(100),
         gelar_depan varchar(20),
         gelar_belakang varchar(20),
         fullname varchar(150),
         jabatan_fungsional varchar(30),
         job varchar(20),
-        pengajuan_id int[],
-        bimbingan_id varchar[]
       );`,
     },
     {
@@ -52,28 +49,7 @@ export async function setMandatoryTables() {
         tahun_ajaran varchar(20),
         prodi varchar(50),
         kelas varchar(10),
-        kbk varchar(100),
-        pengajuan_id int,
-        pbb_1_id varchar(18),
-        pbb_2_id varchar(18),
-        pbb_3_id varchar(18),
-        proposal_id int,
-        tugas_akhir_id int,
         job varchar(20)
-      );`,
-    },
-    {
-      name: `pengajuan`,
-      query: `(
-        id bigserial primary key,
-        mhs_id varchar(9),
-        minat varchar[],
-        judul varchar(200),
-        deskripsi varchar(1000),
-        calon_pbb_utama_id varchar[],
-        calon_pbb_pendamping_id varchar[],
-        status varchar(20),
-        waktu_kadaluarsa date
       );`,
     },
   ];

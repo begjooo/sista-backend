@@ -1,5 +1,7 @@
 import express from "express";
+import { MongoClient } from "mongodb";
 import { getFullDb, getDb, getData, getFullData, updateData } from "../db/psql/handler.js";
+import { mongoDosenCol } from "../db/mongo/conn.js";
 
 export const router = express.Router();
 
@@ -17,6 +19,12 @@ router.get('/list', async (req, res) => {
 router.get('/data/:username', async (req, res) => {
   const username = req.params.username;
   const data = await getData(`dosen`, username);
+  res.send(data);
+});
+
+router.get('/data-full/:username', async (req, res) => {
+  const username = req.params.username;
+  const data = await getFullData(`dosen`, username);
   res.send(data);
 });
 
@@ -54,8 +62,19 @@ router.post('/data/:username/profile/edit/password', async (req, res) => {
   res.send(true);
 });
 
-router.get('/data-full/:username', async (req, res) => {
+router.get('/data/:username/penelitian', async (req, res) => {
   const username = req.params.username;
-  const data = await getFullData(`dosen`, username);
-  res.send(data);
+  res.send(true);
+});
+
+router.post('/data/:username/penelitian/edit', async (req, res) => {
+  const username = req.params.username;
+  const newData = req.body;
+  console.log(newData);
+
+  // const result = await mongoDosenCol.insertOne({ _id: username, kbk: 'asd', minat: 'waveguide' });
+  // console.log(result);
+  // console.log(mongoDosenCol);
+
+  res.send(true);
 });

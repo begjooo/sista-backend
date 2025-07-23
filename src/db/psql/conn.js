@@ -13,10 +13,10 @@ export const psql = pgp(`postgres://${dbUsername}:${dbPassword}@${dbHost}:${dbPo
 export async function psqlConn() {
   try {
     await psql.connect();
-    console.log(`psql connection: connect to '${dbName}' db`);
+    console.log(`psql: connect to '${dbName}' db`);
     return true;
   } catch (error) {
-    console.log(`psql connection: ${error.message}`);
+    console.log(`psql: ${error.message}`);
     return false
   };
 };
