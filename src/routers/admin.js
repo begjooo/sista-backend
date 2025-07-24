@@ -1,6 +1,5 @@
 import express from "express";
-// import { getDosenData, getDosenDb } from "../handler/dosen/data.js";
-import { getFullData, getFullDb } from "../db/psql/handler.js";
+import { getFullData, getFullDb } from "../handler/psql.js";
 
 export const router = express.Router();
 
@@ -11,7 +10,7 @@ router.get('/data/:username', async (req, res) => {
 });
 
 router.get('/dosen-list', async (req, res) => {
-  const list = await getFullDb(`dosen`);
+  const list = await getFullDb(`dosen`, `dosen`);
   res.send(list);
 });
 

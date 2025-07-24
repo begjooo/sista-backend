@@ -1,14 +1,22 @@
 import express from "express";
 import { getLoggedUser, login } from "../handler/auth.js";
-import { getFullData, insertData } from "../db/psql/handler.js";
+import { getFullData, psqlInsertData } from "../handler/psql.js";
+import { mongodbInsertData } from "../handler/mongodb.js";
+// import { mongodbInsertData } from "../handler/mongodb.js";
 
 export const router = express.Router();
 
 router.post('/register/dosen', async (req, res) => {
   console.log('/register/dosen');
   const data = req.body;
-  const result = await insertData(`dosen`, `(username, password, job)`, `('${req.body.username}', '${req.body.password}', 'dosen')`);
-  res.send(result);
+  const psqlResult = await psqlInsertData(`dosen`, `(username, password, job)`, `('${data.username}', '${data.password}', '${data.job}')`);
+  const mongodbResult = await mongodbInsertData(data.job, data.username);
+
+  if (psqlResult.status && mongodbResult.status) {
+    res.send({ status: true });
+  } else {
+    res.send({ psql: psqlResult, mongodb: mongodbResult });
+  };
 });
 
 router.post('/register/mhs', async (req, res) => {

@@ -1,4 +1,4 @@
-import { psql } from "./conn.js";
+import { psql } from "../db/psql/conn.js";
 
 export async function createTable(tableName, columnQuery) {
   console.log(`psql: create '${tableName}' table`);
@@ -11,7 +11,7 @@ export async function createTable(tableName, columnQuery) {
 };
 
 export async function checkTable(tableName) {
-  // console.log(`checkTable()`);
+  console.log(`checkTable()`);
   try {
     const isTableExist = await psql.query(`select * from ${tableName};`);
     return true;
@@ -36,7 +36,7 @@ export async function psqlInit() {
         gelar_belakang varchar(20),
         fullname varchar(150),
         jabatan_fungsional varchar(30),
-        job varchar(20),
+        job varchar(20)
       );`,
     },
     {
@@ -62,13 +62,13 @@ export async function psqlInit() {
   };
 };
 
-export async function insertData(tableName, columnQuery, valueQuery) {
-  // console.log(`insertData()`);
+export async function psqlInsertData(tableName, columnQuery, valueQuery) {
+  console.log(`psqlInsertData()`);
   try {
     await psql.query(`insert into ${tableName} ${columnQuery} values ${valueQuery};`);
     return {
       status: true,
-      message: `psql: Insert data success!`,
+      message: `psql: insert data success!`,
     };
   } catch (error) {
     console.log(`psql: ${error.message}`);
@@ -79,10 +79,10 @@ export async function insertData(tableName, columnQuery, valueQuery) {
   };
 };
 
-export async function getFullDb(tableName) {
+export async function getFullDb(tableName, job) {
   console.log(`getFullDb()`);
   try {
-    const result = await psql.query(`select * from ${tableName} where job = 'dosen';`);
+    const result = await psql.query(`select * from ${tableName} where job = '${job}';`);
     return result;
   } catch (error) {
     console.log(`psql: ${error.message}`);
@@ -90,12 +90,12 @@ export async function getFullDb(tableName) {
   };
 };
 
-export async function getDb(tableName) {
+export async function getDb(tableName, job) {
   console.log(`getDb()`);
   try {
     const result = await psql.query(`select 
       username, kbk, minat, kode, fullname, jabatan_fungsional, job
-      from ${tableName} where job = 'dosen';`);
+      from ${tableName} where job = '${job}';`);
     return result;
   } catch (error) {
     console.log(`psql: ${error.message}`);
@@ -126,8 +126,8 @@ export async function getData(tableName, username) {
   };
 };
 
-export async function updateData(tableName, username, query) {
-  console.log(`updateData()`);
+export async function psqlUpdateData(tableName, username, query) {
+  console.log(`psqlUpdateData()`);
   try {
     await psql.one(`update ${tableName} set ${query} where username = '${username}';`);
     return true;

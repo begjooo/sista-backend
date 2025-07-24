@@ -1,6 +1,5 @@
-import { getData, getFullData } from "../db/psql/handler.js";
-// import { getMhsDb, getMhsList } from "./mhs/data.js";
 import jwt from "jsonwebtoken";
+import { getData, getFullData } from "./psql.js";
 
 const { JsonWebTokenError } = jwt;
 

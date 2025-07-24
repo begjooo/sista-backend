@@ -1,7 +1,7 @@
 import express from "express";
 import { pengajuanTa } from "../handler/mhs/pengajuanTa.js";
 import { permintaanBimbingan } from "../handler/dosen/pengajuanTa.js";
-import { getData, getFullData } from "../db/psql/handler.js";
+import { getData, getFullData } from "../handler/psql.js";
 
 export const router = express.Router();
 
