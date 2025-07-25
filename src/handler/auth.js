@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { getData, getFullData } from "./psql.js";
+import { psqlGetData, getFullData } from "./psql.js";
 
 const { JsonWebTokenError } = jwt;
 
@@ -77,11 +77,11 @@ export async function getLoggedUser(cookie) {
   } else {
     let user = null;
     if (claim.job === 'admin' || claim.job === 'dosen') {
-      user = await getData(`dosen`, claim.username);
+      user = await psqlGetData(`dosen`, claim.username);
     } else if (claim.job === 'tendik') {
-      user = await getData(`tendik`, claim.username);
+      user = await psqlGetData(`tendik`, claim.username);
     } else {
-      user = await getData(`mahasiswa`, claim.username);
+      user = await psqlGetData(`mahasiswa`, claim.username);
     };
 
     return user;

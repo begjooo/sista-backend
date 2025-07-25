@@ -24,7 +24,7 @@ export async function mongoConn() {
     // Send a ping to confirm a successful connection
     await mongoClient.db("admin").command({ ping: 1 });
     console.log("mongodb: successfully connected to mongodb");
-  } catch {
+  } catch (error) {
     console.log(error);
   };
 };

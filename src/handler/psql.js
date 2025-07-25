@@ -114,8 +114,8 @@ export async function getFullData(tableName, username) {
   };
 };
 
-export async function getData(tableName, username) {
-  console.log(`getData()`);
+export async function psqlGetData(tableName, username) {
+  console.log(`psqlGetData()`);
   try {
     let result = await psql.one(`select * from ${tableName} where username = '${username}';`);
     delete result.password;

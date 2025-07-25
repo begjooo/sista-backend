@@ -1,7 +1,7 @@
 import express from "express";
 import { pengajuanTa } from "../handler/mhs/pengajuanTa.js";
 import { permintaanBimbingan } from "../handler/dosen/pengajuanTa.js";
-import { getData, getFullData } from "../handler/psql.js";
+import { psqlGetData, getFullData } from "../handler/psql.js";
 
 export const router = express.Router();
 
@@ -12,7 +12,7 @@ router.get('/list', async (req, res) => {
 
 router.get('/data/:username', async (req, res) => {
   const username = req.params.username;
-  const data = await getData(`mahasiswa`, username);
+  const data = await psqlGetData(`mahasiswa`, username);
   res.send(data);
 });
 

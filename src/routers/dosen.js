@@ -1,6 +1,6 @@
 import express from "express";
-import { getFullDb, getDb, getFullData, getData, psqlUpdateData } from "../handler/psql.js";
-import { mongodbUpdateData } from "../handler/mongodb.js";
+import { getFullDb, getDb, getFullData, psqlGetData, psqlUpdateData } from "../handler/psql.js";
+import { mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
 
 export const router = express.Router();
 
@@ -17,7 +17,7 @@ router.get('/list', async (req, res) => {
 
 router.get('/data/:username', async (req, res) => {
   const username = req.params.username;
-  const data = await getData(`dosen`, username);
+  const data = await psqlGetData(`dosen`, username);
   res.send(data);
 });
 
@@ -30,10 +30,8 @@ router.get('/data-full/:username', async (req, res) => {
 router.post('/data/:username/profile/edit', async (req, res) => {
   const username = req.params.username;
   const data = req.body;
-  console.log(data);
 
   let fullname = '';
-
   if (data.gelar_depan) {
     fullname = `${data.gelar_depan} `;
   };
@@ -56,25 +54,43 @@ router.post('/data/:username/profile/edit', async (req, res) => {
 router.post('/data/:username/profile/edit/password', async (req, res) => {
   const username = req.params.username;
   const newPassword = req.body.password;
-
-  await updateData(`dosen`, username, `password = '${newPassword}'`);
-
+  await psqlUpdateData(`dosen`, username, `password = '${newPassword}'`);
   res.send(true);
 });
 
-router.get('/data/:username/penelitian', async (req, res) => {
+router.get('/data/:username/minat', async (req, res) => {
   const username = req.params.username;
-  res.send(true);
+  const result = await mongodbGetData(`dosen`, username);
+  res.send(result);
 });
 
-router.post('/data/:username/penelitian/edit', async (req, res) => {
+router.get('/:username/tugas-akhir/usulan', async (req, res) => {
   const username = req.params.username;
-  const newData = req.body;
-  console.log(newData);
+  // console.log(username);
+  const psqlData = await psqlGetData(`dosen`, username);
+  const kbk = psqlData.kbk;
+  // console.log(kbk);
+  const mongodbData = await mongodbGetData(`dosen`, username);
+  // console.log(mongodbData);
+  const minat = mongodbData.minat;
+  // console.log(minat);
+  const result = { kbk, minat };
+  console.log(result);
+  res.send(result);
+});
 
-  // const result = await mongoDosenCol.insertOne({ _id: username, kbk: 'asd', minat: 'waveguide' });
-  // console.log(result);
-  // console.log(mongoDosenCol);
+router.get('/:username/tugas-akhir/usulan/tambah', async (req, res) => {
+  const username = req.params.username;
+  const usulanTa = req.body;
+  console.log(usulanTa);
+  // const result = await mongodbGetData(`dosen`, username);
+  res.send();
+});
 
+router.get('/:username/tugas-akhir/usulan/hapus', async (req, res) => {
+  const username = req.params.username;
+  const usulanTa = req.body;
+  console.log(usulanTa);
+  // const result = await mongodbGetData(`dosen`, username);
   res.send(true);
 });
