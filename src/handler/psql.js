@@ -90,11 +90,11 @@ export async function getFullDb(tableName, job) {
   };
 };
 
-export async function getDb(tableName, job) {
-  console.log(`getDb()`);
+export async function psqlGetDb(tableName, job) {
+  console.log(`psqlGetDb()`);
   try {
     const result = await psql.query(`select 
-      username, kbk, minat, kode, fullname, jabatan_fungsional, job
+      username, kode, kbk, fullname, jabatan_fungsional, job
       from ${tableName} where job = '${job}';`);
     return result;
   } catch (error) {

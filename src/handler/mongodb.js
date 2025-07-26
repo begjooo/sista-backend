@@ -6,7 +6,7 @@ export async function mongodbInsertData(collection, username) {
     let result = null;
     if (collection === 'dosen') {
       result = await mongoDosenCol.insertOne({ _id: username });
-    } else if (collection === 'mhs') {
+    } else if (collection === 'mahasiswa') {
       result = await mongoMhsCol.insertOne({ _id: username });
     };
 
@@ -23,30 +23,47 @@ export async function mongodbInsertData(collection, username) {
   };
 };
 
+export async function mongodbGetList(collection) {
+  console.log(`mongodbGetList()`);
+  try {
+    let data = null;
+    if (collection === 'dosen') {
+      data = await mongoDosenCol.find().toArray();
+    } else if (collection === 'mahasiswa') {
+      data = await mongoMhsCol.find().toArray();
+    };
+
+    return data;
+  } catch (error) {
+    console.log(error.message)
+    return false;
+  };
+};
+
 export async function mongodbGetData(collection, username) {
   console.log(`mongodbGetData()`);
   try {
     let data = null;
     if (collection === 'dosen') {
       data = await mongoDosenCol.findOne({ _id: username });
-    } else if (collection === 'mhs') {
+    } else if (collection === 'mahasiswa') {
       data = await mongoMhsCol.findOne({ _id: username });
     };
 
     return data;
   } catch (error) {
-    return error.message;
+    console.log(error.message)
+    return false;
   };
 };
 
 export async function mongodbUpdateData(collection, username, updatedData) {
   console.log(`mongodbUpdateData()`);
   try {
-    let result = null;
     if (collection === 'dosen') {
-      result = await mongoDosenCol.updateOne({ _id: username }, { $set: updatedData });
-    } else if (collection === 'mhs') {
-      result = await mongoMhsCol.updateOne({ _id: username }, { $set: updatedData });
+      await mongoDosenCol.updateOne({ _id: username }, updatedData);
+    } else if (collection === 'mahasiswa') {
+      await mongoMhsCol.updateOne({ _id: username }, updatedData);
     };
 
     return {
