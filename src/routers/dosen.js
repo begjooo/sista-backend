@@ -3,6 +3,7 @@ import { mongoDosenCol } from "../db/mongo/conn.js";
 import { getFullDb, psqlGetDb, getFullData, psqlGetData, psqlUpdateData } from "../handler/psql.js";
 import { mongodbGetList, mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
 import { combinePsqlAndMongodb } from "../handler/additional.js";
+import { ObjectId } from "mongodb";
 
 export const router = express.Router();
 
@@ -87,22 +88,27 @@ router.get('/:username/tugas-akhir/usulan/list', async (req, res) => {
   const mongodbData = await mongodbGetData(`dosen`, username);
   // console.log(mongodbData);
   const minat = mongodbData.minat;
-  const usulanTa = mongodbData.tugas_akhir;
-
+  const usulanTa = mongodbData.usulan_ta;
   res.send({ kbk, minat, usulanTa });
+});
+
+router.get('/:username/tugas-akhir/usulan-mhs/list', async (req, res) => {
+  const username = req.params.username;
+  const mongodbData = await mongodbGetData(`dosen`, username);
+  res.send(mongodbData.usulan_mhs);
 });
 
 router.post('/:username/tugas-akhir/usulan/tambah', async (req, res) => {
   const username = req.params.username;
-  const usulanTa = req.body;
-  const result = await mongodbUpdateData(`dosen`, username, { $push: { tugas_akhir: usulanTa } });
+  let usulanTa = { ...req.body };
+  usulanTa.id = new ObjectId().toString();
+  const result = await mongodbUpdateData(`dosen`, username, { $push: { usulan_ta: usulanTa } });
   res.send(result);
 });
 
 router.post('/:username/tugas-akhir/usulan/hapus', async (req, res) => {
   const username = req.params.username;
-  const usulanIndex = req.body.index;
-  const result = await mongodbUpdateData(`dosen`, username, { $unset: { [`tugas_akhir.${usulanIndex}`]: 1 } });
-  await mongodbUpdateData(`dosen`, username, { $pull: { tugas_akhir: null } });
+  const taId = req.body.taId;
+  const result = await mongodbUpdateData(`dosen`, username, { $pull: { usulan_ta: { id: taId } } });
   res.send(result);
 });
