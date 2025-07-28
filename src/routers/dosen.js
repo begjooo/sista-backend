@@ -112,3 +112,63 @@ router.post('/:username/tugas-akhir/usulan/hapus', async (req, res) => {
   const result = await mongodbUpdateData(`dosen`, username, { $pull: { usulan_ta: { id: taId } } });
   res.send(result);
 });
+
+// khusus usulan dari mhs
+router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
+  const username = req.params.username;
+  const data = req.body;
+  console.log(data);
+  console.log(`terima`);
+
+  // update db mhs
+
+  // update db dosen
+  // // ambil data ta
+  // let taFromDosenDb = {};
+  // try {
+  //   const taData = await mongoDosenCol.findOne(
+  //     { [`usulan_mhs.id`]: data.id },
+  //     { projection: { [`usulan_mhs.$`]: 1 } },
+  //   );
+
+  //   taFromDosenDb = taData.usulan_mhs[0];
+  // } catch (error) {
+  //   console.log(error.message);
+  // };
+
+  // // hapus ta di usulan_mhs
+  // try {
+  //   await mongoDosenCol.updateOne({ _id: username }, { $pull: { usulan_mhs: { id: data.id } } });
+  // } catch (error) {
+  //   console.log(error.message);
+  // };
+
+  // delete taFromDosenDb.msg;
+  // delete taFromDosenDb.tahap;
+
+  // // pindahin ke bimbingan
+  // try {
+  //   await mongoDosenCol.updateOne({ _id: username }, { $push: { bimbingan: taFromDosenDb } });
+  // } catch (error) {
+  //   console.log(error.message);
+  // };
+
+  res.send(true);
+});
+
+router.post('/:username/tugas-akhir/usulan/tolak', async (req, res) => {
+  const username = req.params.username;
+  const data = req.body;
+  console.log(data);
+  console.log(`tolak`);
+  // update db mhs
+
+  // update db dosen
+  try {
+    await mongoDosenCol.updateOne({ _id: username }, { $pull: { usulan_mhs: { id: data.id } } });
+  } catch (error) {
+    console.log(error.message);
+  };
+
+  res.send(true);
+});
