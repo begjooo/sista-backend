@@ -3,7 +3,7 @@ import { pengajuanTa } from "../handler/mhs/pengajuanTa.js";
 import { permintaanBimbingan } from "../handler/dosen/pengajuanTa.js";
 import { psqlGetData, getFullData } from "../handler/psql.js";
 import { mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
-import { mongoDosenCol } from "../db/mongo/conn.js";
+import { mongoDosenCol, mongoMhsCol } from "../db/mongo/conn.js";
 import { ObjectId } from "mongodb";
 
 export const router = express.Router();
@@ -85,6 +85,31 @@ router.post('/:username/tugas-akhir/usulan/tambah', async (req, res) => {
       { $push: { usulan_mhs: usulanToDosen } }
     );
   };
+
+  res.send(true);
+});
+
+// khusus untuk judul dari mhs
+router.post('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
+  const username = req.params.username;
+  const data = req.body;
+  // console.log(username);
+  console.log(data)
+  // update db mhs
+  // simpen pesan dari pbb dan update tahap menjadi 'Diskusi'
+  try {
+    await mongoMhsCol.updateOne({ _id: data.mhsUsername, [`usulan_ta.id`]: data.id }, { $set: { [`usulan_ta.$.tahap`]: 'Diskusi', [`usulan_ta.$.msg`]: data.message } });
+  } catch (error) {
+    console.log(error)
+  }
+
+  // update db dosen
+  // simpen pesan dan update tahap menjadi 'Diskusi'
+  try {
+    await mongoDosenCol.updateOne({ _id: data.dosenUsername, [`usulan_mhs.id`]: data.id }, { $set: { [`usulan_mhs.$.tahap`]: 'Diskusi', [`usulan_mhs.$.msg`]: data.message } });
+  } catch (error) {
+    console.log(error)
+  }
 
   res.send(true);
 });
