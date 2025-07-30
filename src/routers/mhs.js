@@ -37,6 +37,7 @@ router.get('/:username/tugas-akhir/usulan/data', async (req, res) => {
       pribadi: psqlData,
       portofolio: mongodbData.portofolio,
       usulan_ta: mongodbData.usulan_ta,
+      tugas_akhir: mongodbData.tugas_akhir,
     });
   } else {
     res.send(false);
