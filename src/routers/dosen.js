@@ -113,8 +113,62 @@ router.post('/:username/tugas-akhir/usulan/hapus', async (req, res) => {
   res.send(result);
 });
 
-// khusus usulan dari mhs
+// khusus usulan dari dosen
 router.post('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
+  const username = req.params.username;
+  const data = req.body;
+  console.log(username);
+  console.log(data);
+
+  // update db mhs
+  // simpen pesan dari pbb dan update tahap menjadi 'Diskusi'
+  // try {
+  //   await mongoMhsCol.updateOne({ _id: username, [`usulan_ta.id`]: data.id }, { $set: { [`usulan_ta.$.tahap`]: 'Diskusi', [`usulan_ta.$.msg`]: data.message } });
+  // } catch (error) {
+  //   console.log(error);
+  // };
+
+  // update db dosen
+  // ambil data
+  // let taForDosenDb = {};
+  // try {
+  //   const taData = await mongoDosenCol.findOne({ [`usulan_ta.id`]: data.id });
+  //   console.log(taData);
+  //   taForDosenDb = taData;
+  //   console.log(taForDosenDb);
+  // } catch (error) {
+  //   console.log(error.message);
+  // };
+
+  // simpen pesan, update tahap menjadi 'Diskusi'
+  // try {
+  //   await mongoDosenCol.updateOne({ _id: data.dosenUsername, [`usulan_ta.id`]: data.id }, { $set: { [`usulan_ta.$.`]: 'Diskusi', [`usulan_mhs.$.msg`]: data.message } });
+  // } catch (error) {
+  //   console.log(error);
+  // };
+
+  // pindahin dari mhs_pengusul ke mhs_diskusi
+  await mongoDosenCol.updateOne(
+    { _id: username, [`usulan_ta.id`]: data.id },
+    {
+      $push: {
+        [`usulan_ta.$.mhs_diskusi`]: {
+          username: data.mhsUsername,
+          name: data.mhsName,
+          degree: data.degree,
+          msg: data.message,
+        }
+      }
+    }
+  );
+
+  // hapus yg ada di mhs_pengusul
+
+  res.send(true);
+});
+
+// khusus usulan dari mhs
+router.post('/:username/tugas-akhir/usulan-mhs/diskusi', async (req, res) => {
   const username = req.params.username;
   const data = req.body;
 
@@ -137,8 +191,7 @@ router.post('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
   res.send(true);
 });
 
-// khusus usulan dari mhs
-router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
+router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
   const username = req.params.username;
   const data = req.body;
   console.log(data);
@@ -210,7 +263,7 @@ router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
   res.send(true);
 });
 
-router.post('/:username/tugas-akhir/usulan/tolak', async (req, res) => {
+router.post('/:username/tugas-akhir/usulan-mhs/tolak', async (req, res) => {
   const username = req.params.username;
   const data = req.body;
   console.log(data);
