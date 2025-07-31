@@ -26,7 +26,8 @@ router.get('/:username/data', async (req, res) => {
   };
 });
 
-router.get('/:username/tugas-akhir/usulan/data', async (req, res) => {
+router.get('/:username/tugas-akhir/usulan', async (req, res) => {
+  console.log(`/mhs/:username/tugas-akhir/usulan`)
   const username = req.params.username;
   const psqlData = await psqlGetData(`mahasiswa`, username);
   // console.log(psqlData);
@@ -44,7 +45,8 @@ router.get('/:username/tugas-akhir/usulan/data', async (req, res) => {
   };
 });
 
-router.post('/:username/tugas-akhir/usulan/tambah', async (req, res) => {
+router.post('/:username/tugas-akhir/usulan', async (req, res) => {
+  console.log(`/mhs/:username/tugas-akhir/usulan`)
   const username = req.params.username;
   const usulanData = req.body;
   // console.log(username);
@@ -64,7 +66,7 @@ router.post('/:username/tugas-akhir/usulan/tambah', async (req, res) => {
 
     await mongodbUpdateData(`mahasiswa`, username, { $push: { usulan_ta: usulanMhs } });
     await mongoDosenCol.updateOne(
-      { _id: usulanData.dosen_username, [`usulan_ta.id`]: usulanData.id },
+      { _id: usulanData.dosen1_username, [`usulan_ta.id`]: usulanData.id },
       { $push: { [`usulan_ta.$.mhs_pengusul`]: usulanToDosen } }
     );
 
@@ -77,12 +79,12 @@ router.post('/:username/tugas-akhir/usulan/tambah', async (req, res) => {
     usulanToDosen = { ...usulanData };
     usulanToDosen.id = taId;
     usulanToDosen.username = username;
-    delete usulanToDosen.dosen_username;
+    delete usulanToDosen.dosen1_username;
     delete usulanToDosen.dosen_fullname;
     delete usulanToDosen.type;
 
     await mongoDosenCol.updateOne(
-      { _id: usulanData.dosen_username },
+      { _id: usulanData.dosen1_username },
       { $push: { usulan_mhs: usulanToDosen } }
     );
   };
