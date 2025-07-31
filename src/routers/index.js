@@ -1,8 +1,7 @@
 import express from "express";
 import { getLoggedUser, login } from "../handler/auth.js";
-import { getFullData, psqlInsertData } from "../handler/psql.js";
+import { psqlInsertData } from "../handler/psql.js";
 import { mongodbInsertData, mongodbUpdateData } from "../handler/mongodb.js";
-// import { mongodbInsertData } from "../handler/mongodb.js";
 
 export const router = express.Router();
 
@@ -11,6 +10,7 @@ router.post('/register/dosen', async (req, res) => {
   const data = req.body;
   const psqlResult = await psqlInsertData(`dosen`, `(username, password, job)`, `('${data.username}', '${data.password}', '${data.job}')`);
   const mongodbResult = await mongodbInsertData(data.job, data.username);
+
   if (psqlResult.status && mongodbResult.status) {
     res.send({ status: true });
   } else {
@@ -21,12 +21,15 @@ router.post('/register/dosen', async (req, res) => {
 router.post('/register/mhs', async (req, res) => {
   console.log('/register/mhs');
   const data = req.body;
+
   const psqlResult = await psqlInsertData(`mahasiswa`,
     `(username, password, name, email, tahun_ajaran, prodi, kelas, job)`,
     `('${data.username}', '${data.password}', '${data.name}', '${data.email}', '${data.tahunAjaran}', '${data.prodi}', '${data.kelas}', 'mahasiswa')`
   );
+
   const mongodbResult = await mongodbInsertData(`mahasiswa`, data.username);
   await mongodbUpdateData(`mahasiswa`, data.username, { $set: { name: data.name } });
+
   if (psqlResult.status && mongodbResult.status) {
     res.send({ status: true });
   } else {
@@ -38,6 +41,7 @@ router.post('/login', async (req, res) => {
   console.log(`/login`)
   const username = req.body.username;
   const password = req.body.password;
+
   const loginResult = await login(username, password);
 
   if (loginResult) {
@@ -48,7 +52,7 @@ router.post('/login', async (req, res) => {
 
     res.send(loginResult);
   } else {
-    res.send(0);
+    res.send(false);
   };
 });
 
@@ -58,7 +62,7 @@ router.post('/user', async (req, res) => {
     const data = await getLoggedUser(req.cookies['jwt']);
     res.send(data);
   } catch (error) {
-    res.send(0);
+    res.send(false);
   };
 });
 

@@ -79,7 +79,7 @@ export async function psqlInsertData(tableName, columnQuery, valueQuery) {
   };
 };
 
-export async function getFullDb(tableName, job) {
+export async function psqlGetFullDb(tableName, job) {
   console.log(`getFullDb()`);
   try {
     const result = await psql.query(`select * from ${tableName} where job = '${job}';`);
@@ -103,8 +103,8 @@ export async function psqlGetDb(tableName, job) {
   };
 };
 
-export async function getFullData(tableName, username) {
-  console.log(`getFullData()`);
+export async function psqlGetFullData(tableName, username) {
+  console.log(`psqlGetFullData()`);
   try {
     const result = await psql.one(`select * from ${tableName} where username = '${username}';`);
     return result;

@@ -1,7 +1,7 @@
 import express from "express";
 import { pengajuanTa } from "../handler/mhs/pengajuanTa.js";
 import { permintaanBimbingan } from "../handler/dosen/pengajuanTa.js";
-import { psqlGetData, getFullData } from "../handler/psql.js";
+import { psqlGetData } from "../handler/psql.js";
 import { mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
 import { mongoDosenCol, mongoMhsCol } from "../db/mongo/conn.js";
 import { ObjectId } from "mongodb";

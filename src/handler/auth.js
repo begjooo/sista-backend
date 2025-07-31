@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { psqlGetData, getFullData } from "./psql.js";
+import { psqlGetData, psqlGetFullData } from "./psql.js";
 
 const { JsonWebTokenError } = jwt;
 
@@ -30,11 +30,11 @@ async function checkEntity(access, username, password) {
   console.log(`checkEntity()`);
   let user = null;
   if (access === AccessEnum[1] || access === AccessEnum[2]) {
-    user = await getFullData(`dosen`, username);
+    user = await psqlGetFullData(`dosen`, username);
   } else if (access === AccessEnum[3]) {
-    user = await getFullData(`tendik`, username);
+    user = await psqlGetFullData(`tendik`, username);
   } else if (access === AccessEnum[4]) {
-    user = await getFullData(`mahasiswa`, username);
+    user = await psqlGetFullData(`mahasiswa`, username);
   };
 
   if (user.password === password) {
