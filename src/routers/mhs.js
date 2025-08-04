@@ -10,7 +10,7 @@ export const router = express.Router();
 
 router.get('/list', async (req, res) => {
   // const list = await getMhsList();
-  res.send(list);
+  // res.send(list);
 });
 
 router.get('/:username/data', async (req, res) => {
@@ -27,12 +27,11 @@ router.get('/:username/data', async (req, res) => {
 });
 
 router.get('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`/mhs/:username/tugas-akhir/usulan`)
+  console.log(`get /mhs/:username/tugas-akhir/usulan`)
   const username = req.params.username;
   const psqlData = await psqlGetData(`mahasiswa`, username);
-  // console.log(psqlData);
   const mongodbData = await mongodbGetData(`mahasiswa`, username);
-  // console.log(mongodbData);
+
   if (psqlData && mongodbData) {
     res.send({
       pribadi: psqlData,
@@ -46,7 +45,7 @@ router.get('/:username/tugas-akhir/usulan', async (req, res) => {
 });
 
 router.post('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`/mhs/:username/tugas-akhir/usulan`)
+  console.log(`post /mhs/:username/tugas-akhir/usulan`)
   const username = req.params.username;
   const usulanData = req.body;
   // console.log(username);
@@ -58,6 +57,7 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
   // simpen/tambah ke dosenColl
   let usulanToDosen = {};
   if (usulanData.type === `dosen`) { // jika type dosen maka usulan_ta.mhs_pengusul
+    console.log(`usulan dosen`);
     usulanToDosen = {
       username: username,
       name: usulanData.name,
@@ -71,6 +71,7 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
     );
 
   } else if (usulanData.type === `mahasiswa`) { // jika type mahasiswa maka usulan_mhs
+    console.log(`usulan mahasiswa`);
     const taId = new ObjectId().toString();
 
     usulanMhs.id = taId;
@@ -80,7 +81,7 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
     usulanToDosen.id = taId;
     usulanToDosen.username = username;
     delete usulanToDosen.dosen1_username;
-    delete usulanToDosen.dosen_fullname;
+    delete usulanToDosen.dosen1_fullname;
     delete usulanToDosen.type;
 
     await mongoDosenCol.updateOne(

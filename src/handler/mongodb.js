@@ -15,7 +15,7 @@ export async function mongodbInsertData(collection, username) {
       message: `mongodb: insert data success!`,
     };
   } catch (error) {
-    console.log(`mongpdb: ${error.message}`);
+    console.log(`mongodb: ${error.message}`);
     return {
       status: false,
       message: error.message,

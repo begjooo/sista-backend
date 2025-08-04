@@ -13,6 +13,7 @@ const mongoClient = new MongoClient(uri, {
 
 export let mongoDosenCol = null;
 export let mongoMhsCol = null;
+export let mongoTaCol = null;
 
 export async function mongoConn() {
   try {
@@ -21,6 +22,7 @@ export async function mongoConn() {
     const db = mongoClient.db('sista');
     mongoDosenCol = db.collection('dosen');
     mongoMhsCol = db.collection('mahasiswa');
+    mongoTaCol = db.collection('tugas_akhir');
     // Send a ping to confirm a successful connection
     await mongoClient.db("admin").command({ ping: 1 });
     console.log("mongodb: successfully connected to mongodb");
