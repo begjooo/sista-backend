@@ -1,42 +1,44 @@
 import express from "express";
 import { mongoDosenCol, mongoMhsCol, mongoTaCol } from "../db/mongo/conn.js";
-import { psqlGetFullDb, psqlGetDb, psqlGetFullData, psqlGetData, psqlUpdateData } from "../handler/psql.js";
+import { psqlGetFullList, psqlGetList, psqlGetFullData, psqlGetData, psqlUpdateData } from "../handler/psql.js";
 import { mongodbGetList, mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
 import { combinePsqlAndMongodb } from "../handler/additional.js";
 import { ObjectId } from "mongodb";
 
 export const router = express.Router();
 
-router.get('/list-full', async (req, res) => {
-  console.log(`/dosen/list-full`);
-  const list = await psqlGetFullDb(`dosen`, `dosen`);
+router.get('/list', async (req, res) => {
+  console.log(`get /dosen/list`);
+  const psqlData = await psqlGetList(`dosen`, `dosen`);
+  const mongodbData = await mongodbGetList(`dosen`);
+  const list = combinePsqlAndMongodb(psqlData, mongodbData);
   res.send(list);
 });
 
-router.get('/list', async (req, res) => {
-  console.log(`/dosen/list`);
-  const psqlData = await psqlGetDb(`dosen`, `dosen`);
+router.get('/list-full', async (req, res) => {
+  console.log(`get /dosen/list-full`);
+  const psqlData = await psqlGetFullList(`dosen`, `dosen`);
   const mongodbData = await mongodbGetList(`dosen`);
   const list = combinePsqlAndMongodb(psqlData, mongodbData);
   res.send(list);
 });
 
 router.get('/:username/data', async (req, res) => {
-  console.log(`/dosen/:username/data`);
+  console.log(`get /dosen/:username/data`);
   const username = req.params.username;
-  const data = await psqlGetData(`dosen`, username);
-  res.send(data);
+  const psqlData = await psqlGetData(`dosen`, username);
+  res.send(psqlData);
 });
 
 router.get('/:username/data-full', async (req, res) => {
-  console.log(`/dosen/:username/data-full`);
+  console.log(`get /dosen/:username/data-full`);
   const username = req.params.username;
-  const data = await psqlGetFullData(`dosen`, username);
-  res.send(data);
+  const psqlData = await psqlGetFullData(`dosen`, username);
+  res.send(psqlData);
 });
 
 router.put('/:username/profile', async (req, res) => {
-  console.log(`/dosen/:username/profile`);
+  console.log(`put /dosen/:username/profile`);
   const username = req.params.username;
   const data = req.body;
 
@@ -61,7 +63,7 @@ router.put('/:username/profile', async (req, res) => {
 });
 
 router.put('/:username/profile/password', async (req, res) => {
-  console.log(`/dosen/:username/profile/password`);
+  console.log(`put /dosen/:username/profile/password`);
   const username = req.params.username;
   const newPassword = req.body.password;
   await psqlUpdateData(`dosen`, username, `password = '${newPassword}'`);
@@ -69,19 +71,14 @@ router.put('/:username/profile/password', async (req, res) => {
 });
 
 router.get('/:username/penelitian', async (req, res) => {
-  console.log(`/dosen/:username/penelitian`);
+  console.log(`get /dosen/:username/penelitian`);
   const username = req.params.username;
-  try {
-    const data = await mongoDosenCol.findOne({ _id: username });
-    res.send(data);
-  } catch (error) {
-    console.log(error.message)
-    res.send(false);
-  };
+  const mongodbData = await mongodbGetData(`dosen`, username);
+  res.send(mongodbData);
 });
 
 router.post('/:username/penelitian/minat', async (req, res) => {
-  console.log(`/dosen/:username/penelitian/minat`);
+  console.log(`post /dosen/:username/penelitian/minat`);
   const username = req.params.username;
   const minat = req.body.minat;
 
@@ -100,7 +97,7 @@ router.post('/:username/penelitian/minat', async (req, res) => {
 });
 
 router.delete('/:username/penelitian/minat', async (req, res) => {
-  console.log(`/dosen/:username/penelitian/minat`);
+  console.log(`delete /dosen/:username/penelitian/minat`);
   const username = req.params.username;
   const index = req.body.index;
 
@@ -119,9 +116,9 @@ router.delete('/:username/penelitian/minat', async (req, res) => {
   };
 });
 
-// khusus usulan dari dosen
+// usulan dari dosen
 router.get('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan`);
+  console.log(`get /dosen/:username/tugas-akhir/usulan`);
   const username = req.params.username;
   const psqlData = await psqlGetData(`dosen`, username);
   const kbk = psqlData.kbk;
@@ -135,7 +132,7 @@ router.get('/:username/tugas-akhir/usulan', async (req, res) => {
 });
 
 router.post('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan`);
+  console.log(`post /dosen/:username/tugas-akhir/usulan`);
   const username = req.params.username;
   let usulanTa = { ...req.body };
   usulanTa.id = new ObjectId().toString();
@@ -144,11 +141,11 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
 });
 
 router.delete('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan`);
+  console.log(`delete /dosen/:username/tugas-akhir/usulan`);
   const username = req.params.username;
   const taId = req.body.taId;
 
-  // hapus di db dosen
+  // hapus ta di db dosen
   try {
     await mongoDosenCol.updateOne({ _id: username }, { $pull: { usulan_ta: { id: taId } } })
   } catch (error) {
@@ -176,8 +173,8 @@ router.delete('/:username/tugas-akhir/usulan', async (req, res) => {
   });
 });
 
-router.delete('/:username/tugas-akhir/usulan/tolak-mhs', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan/tolak-mhs`);
+router.post('/:username/tugas-akhir/usulan/tolak', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan/tolak`);
   const username = req.params.username;
   const taId = req.body.taId;
   const mhsUsername = req.body.mhsUsername;
@@ -207,7 +204,7 @@ router.delete('/:username/tugas-akhir/usulan/tolak-mhs', async (req, res) => {
     await mongoMhsCol.updateOne(
       { _id: mhsUsername },
       { $pull: { usulan_ta: { id: taId } } }
-    )
+    );
   } catch (error) {
     console.log(error.message);
     res.send({
@@ -223,7 +220,7 @@ router.delete('/:username/tugas-akhir/usulan/tolak-mhs', async (req, res) => {
 });
 
 router.post('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan/diskusi`);
+  console.log(`post /dosen/:username/tugas-akhir/usulan/diskusi`);
   const username = req.params.username;
   const data = req.body;
 
@@ -322,8 +319,6 @@ router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
   console.log(`post /dosen/:username/tugas-akhir/usulan/terima`);
   const username = req.params.username;
   const data = req.body;
-  // console.log(username);
-  // console.log(data);
 
   // update db mhs
   // ambil data ta dari usulan_ta
@@ -339,8 +334,6 @@ router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
     res.send(false);
     console.log(error.message);
   };
-
-  console.log(mhsTaData);
 
   // pindahin mhsTaData ke field tugas_akhir
   try {
@@ -385,20 +378,6 @@ router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
   };
 
   // update db dosen
-  // ambil data ta dari usulan_ta
-  let dosenTaData = {};
-  try {
-    const response = await mongoDosenCol.findOne(
-      { _id: username, [`usulan_ta.id`]: data.taId },
-      { projection: { [`usulan_ta.$`]: 1 } },
-    );
-
-    dosenTaData = { ...response.usulan_ta[0] };
-  } catch (error) {
-    console.log(error.message);
-    res.send(false);
-  };
-
   // tambahkan field bimbingan_utama[]
   try {
     await mongoDosenCol.updateOne(
@@ -535,9 +514,9 @@ router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
   res.send(true);
 });
 
-// khusus usulan dari mhs
+// usulan dari mhs
 router.get('/:username/tugas-akhir/usulan-mhs', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan-mhs`);
+  console.log(`get /dosen/:username/tugas-akhir/usulan-mhs`);
   const username = req.params.username;
   const mongodbData = await mongodbGetData(`dosen`, username);
   if (mongodbData.usulan_mhs) {
@@ -548,7 +527,7 @@ router.get('/:username/tugas-akhir/usulan-mhs', async (req, res) => {
 });
 
 router.post('/:username/tugas-akhir/usulan-mhs/diskusi', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan-mhs/diskusi`);
+  console.log(`post /dosen/:username/tugas-akhir/usulan-mhs/diskusi`);
   const username = req.params.username;
   const data = req.body;
 
@@ -587,6 +566,39 @@ router.post('/:username/tugas-akhir/usulan-mhs/diskusi', async (req, res) => {
   };
 
   res.send(true);
+});
+
+router.post('/:username/tugas-akhir/usulan-mhs/tolak', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan-mhs/tolak`);
+  const username = req.params.username;
+  const data = req.body;
+
+  // update db mhs
+  try {
+    await mongoMhsCol.updateOne({ _id: data.mhsUsername }, { $pull: { usulan_ta: { id: data.id } } });
+  } catch (error) {
+    console.log(error.message);
+    res.send({
+      status: false,
+      message: error.message,
+    });
+  };
+
+  // update db dosen
+  try {
+    await mongoDosenCol.updateOne({ _id: username }, { $pull: { usulan_mhs: { id: data.id } } });
+  } catch (error) {
+    console.log(error.message);
+    res.send({
+      status: false,
+      message: error.message,
+    });
+  };
+
+  res.send({
+    status: true,
+    message: `tolak usulan mhs success`,
+  });
 });
 
 router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
@@ -648,22 +660,6 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
   };
 
   // update db dosen
-  // ambil data ta dari usulan_ta
-  let dosenTaData = {};
-  try {
-    const response = await mongoDosenCol.findOne(
-      { [`usulan_mhs.id`]: data.taId },
-      { projection: { [`usulan_mhs.$`]: 1 } },
-    );
-
-    dosenTaData = response.usulan_mhs[0];
-  } catch (error) {
-    console.log(error.message);
-    res.send(false);
-  };
-
-  console.log(dosenTaData);
-
   // tambahkan field bimbingan_utama[]
   try {
     await mongoDosenCol.updateOne(
@@ -701,7 +697,6 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
       { $pull: { [`usulan_ta.$[].mhs_pengusul`]: { username: data.mhsUsername } } },
     );
   } catch (error) {
-    // console.log(`mhs_pengusul: ${error.message}`);
     console.log(`mhs_pengusul: mhs username not found`);
   };
 
@@ -711,7 +706,6 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
       { $pull: { [`usulan_ta.$[].mhs_diskusi`]: { username: data.mhsUsername } } },
     );
   } catch (error) {
-    // console.log(`mhs_diskusi: ${error.message}`);
     console.log(`mhs_diskusi: mhs username not found`);
   };
 
@@ -722,7 +716,6 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
       { $pull: { [`usulan_mhs`]: { username: data.mhsUsername } } },
     );
   } catch (error) {
-    // console.log(`mhs_diskusi: ${error.message}`);
     console.log(`usulan_mhs: ta id not found`);
   };
 
@@ -800,26 +793,8 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
   res.send(true);
 });
 
-router.post('/:username/tugas-akhir/usulan-mhs/tolak', async (req, res) => {
-  console.log(`/dosen/:username/tugas-akhir/usulan-mhs/tolak`);
-  const username = req.params.username;
-  const data = req.body;
-  console.log(data);
-  console.log(`tolak`);
-  // update db mhs
-
-  // update db dosen
-  // try {
-  //   await mongoDosenCol.updateOne({ _id: username }, { $pull: { usulan_mhs: { id: data.id } } });
-  // } catch (error) {
-  //   console.log(error.message);
-  // };
-
-  res.send(true);
-});
-
 router.get('/:username/bimbingan', async (req, res) => {
-  console.log(`/dosen/:username/bimbingan`);
+  console.log(`get /dosen/:username/bimbingan`);
   const username = req.params.username;
 
   let mongodbBimbingan = [];

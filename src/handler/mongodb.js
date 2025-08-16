@@ -1,18 +1,18 @@
 import { mongoDosenCol, mongoMhsCol } from "../db/mongo/conn.js";
 
-export async function mongodbInsertData(collection, username) {
+export async function mongodbInsertData(collection, data) {
   console.log(`mongodbInsertData()`);
   try {
     let result = null;
     if (collection === 'dosen') {
-      result = await mongoDosenCol.insertOne({ _id: username });
+      result = await mongoDosenCol.insertOne(data);
     } else if (collection === 'mahasiswa') {
-      result = await mongoMhsCol.insertOne({ _id: username });
+      result = await mongoMhsCol.insertOne(data);
     };
 
     return {
       status: true,
-      message: `mongodb: insert data success!`,
+      message: `mongodb: insert data to ${collection} success!`,
     };
   } catch (error) {
     console.log(`mongodb: ${error.message}`);
@@ -35,7 +35,7 @@ export async function mongodbGetList(collection) {
 
     return data;
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
     return false;
   };
 };
@@ -52,18 +52,18 @@ export async function mongodbGetData(collection, username) {
 
     return data;
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
     return false;
   };
 };
 
-export async function mongodbUpdateData(collection, username, updatedData) {
+export async function mongodbUpdateData(collection, username, newData) {
   console.log(`mongodbUpdateData()`);
   try {
     if (collection === 'dosen') {
-      await mongoDosenCol.updateOne({ _id: username }, updatedData);
+      await mongoDosenCol.updateOne({ _id: username }, newData);
     } else if (collection === 'mahasiswa') {
-      await mongoMhsCol.updateOne({ _id: username }, updatedData);
+      await mongoMhsCol.updateOne({ _id: username }, newData);
     };
 
     return {

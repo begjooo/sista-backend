@@ -1,6 +1,4 @@
 import express from "express";
-import { pengajuanTa } from "../handler/mhs/pengajuanTa.js";
-import { permintaanBimbingan } from "../handler/dosen/pengajuanTa.js";
 import { psqlGetData } from "../handler/psql.js";
 import { mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
 import { mongoDosenCol, mongoMhsCol } from "../db/mongo/conn.js";
@@ -54,7 +52,7 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
   let usulanMhs = { ...usulanData };
   delete usulanMhs.name;
 
-  // simpen/tambah ke dosenColl
+  // simpen/tambah ke dosen collection
   let usulanToDosen = {};
   if (usulanData.type === `dosen`) { // jika type dosen maka usulan_ta.mhs_pengusul
     console.log(`usulan dosen`);

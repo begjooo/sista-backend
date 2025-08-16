@@ -1,56 +1,48 @@
 import express from "express";
 import { getLoggedUser, login } from "../handler/auth.js";
 import { psqlInsertData } from "../handler/psql.js";
-import { mongodbInsertData, mongodbUpdateData } from "../handler/mongodb.js";
-import { mongoDosenCol } from "../db/mongo/conn.js";
+import { mongodbInsertData } from "../handler/mongodb.js";
 
 export const router = express.Router();
 
 router.post('/register/dosen', async (req, res) => {
   console.log('/register/dosen');
   const data = req.body;
-  const psqlResult = await psqlInsertData(`dosen`, `(username, password, job)`, `('${data.username}', '${data.password}', '${data.job}')`);
+  const psqlResult = await psqlInsertData(
+    `dosen`,
+    `(username, password, job)`,
+    `('${data.username}', '${data.password}', '${data.job}')`
+  );
 
-  let mongodbResult = {};
-
-  try {
-    await mongoDosenCol.insertOne({ _id: data.username, minat: [], bimbingan_utama: [], usulan_ta: [], usulan_mhs: [] });
-    mongodbResult = {
-      status: true,
-      message: `mongodb: insert data success!`,
-    };
-  } catch (error) {
-    console.log(`mongodb: ${error.message}`);
-    mongodbResult = {
-      status: false,
-      message: error.message,
-    };
-  };
+  const mongodbResult = await mongodbInsertData(`dosen`, {
+    _id: data.username, fullname: '', minat: [], bimbingan_utama: [], usulan_ta: [], usulan_mhs: [],
+  });
 
   if (psqlResult.status && mongodbResult.status) {
     res.send({ status: true });
   } else {
-    res.send({ psql: psqlResult, mongodb: mongodbResult });
+    res.send({ psql: psqlResult.message, mongodb: mongodbResult.message });
   };
 });
 
 router.post('/register/mhs', async (req, res) => {
   console.log('/register/mhs');
   const data = req.body;
-  console.log(data);
 
-  const psqlResult = await psqlInsertData(`mahasiswa`,
+  const psqlResult = await psqlInsertData(
+    `mahasiswa`,
     `(username, password, name, email, tahun_ajaran, prodi, kelas, job)`,
     `('${data.username}', '${data.password}', '${data.name}', '${data.email}', '${data.tahunAjaran}', '${data.prodi}', '${data.kelas}', 'mahasiswa')`
   );
 
-  const mongodbResult = await mongodbInsertData(`mahasiswa`, data.username);
-  await mongodbUpdateData(`mahasiswa`, data.username, { $set: { name: data.name, tahun_ajaran: data.tahunAjaran } });
+  const mongodbResult = await mongodbInsertData(`mahasiswa`, {
+    _id: data.username, name: data.name, tahun_ajaran: data.tahunAjaran,
+  });
 
   if (psqlResult.status && mongodbResult.status) {
     res.send({ status: true });
   } else {
-    res.send({ psql: psqlResult, mongodb: mongodbResult });
+    res.send({ psql: psqlResult.message, mongodb: mongodbResult.message });
   };
 });
 

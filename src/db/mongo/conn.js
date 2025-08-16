@@ -23,6 +23,7 @@ export async function mongoConn() {
     mongoDosenCol = db.collection('dosen');
     mongoMhsCol = db.collection('mahasiswa');
     mongoTaCol = db.collection('tugas_akhir');
+    
     // Send a ping to confirm a successful connection
     await mongoClient.db("admin").command({ ping: 1 });
     console.log("mongodb: successfully connected to mongodb");
