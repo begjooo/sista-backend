@@ -18,9 +18,56 @@ router.get('/:username/data', async (req, res) => {
   const mongodbData = await mongodbGetData(`mahasiswa`, username);
   // console.log(mongodbData);
   if (psqlData && mongodbData) {
-    res.send({ pribadi: psqlData, portofolio: mongodbData.portofolio });
+    res.send({ pribadi: psqlData, cv: mongodbData.cv });
   } else {
     res.send(false);
+  };
+});
+
+
+router.get('/:username/cv', async (req, res) => {
+  console.log(`get /mhs/:username/cv`);
+  const username = req.params.username;
+  const mongodbData = await mongodbGetData(`mahasiswa`, username);
+  res.send(mongodbData.cv);
+});
+
+router.post('/:username/cv', async (req, res) => {
+  console.log(`post /mhs/:username/cv`);
+  const username = req.params.username;
+  const cv = req.body.cv;
+
+  try {
+    await mongoMhsCol.updateOne({ _id: username }, { $push: { cv: cv } });
+    res.send({
+      message: `add new cv success`,
+      status: true,
+    });
+  } catch (error) {
+    res.send({
+      message: error.message,
+      status: false,
+    });
+  };
+});
+
+router.delete('/:username/cv', async (req, res) => {
+  console.log(`delete /mhs/:username/cv`);
+  const username = req.params.username;
+  const index = req.body.index;
+
+  try {
+    await mongoMhsCol.updateOne({ _id: username }, { $unset: { [`cv.${index}`]: '' } });
+    await mongoMhsCol.updateOne({ _id: username }, { $pull: { cv: null } });
+    res.send({
+      message: `delete cv success`,
+      status: true,
+    });
+  } catch (error) {
+    res.send({
+      message: error.message,
+      status: false,
+    });
   };
 });
 
@@ -36,6 +83,7 @@ router.get('/:username/tugas-akhir/usulan', async (req, res) => {
       portofolio: mongodbData.portofolio,
       usulan_ta: mongodbData.usulan_ta,
       tugas_akhir: mongodbData.tugas_akhir,
+      usulan_pdp: mongodbData.usulan_pdp,
     });
   } else {
     res.send(false);
@@ -86,6 +134,52 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
       { _id: usulanData.dosen1_username },
       { $push: { usulan_mhs: usulanToDosen } }
     );
+  };
+
+  res.send(true);
+});
+
+router.post('/:username/tugas-akhir/usulan-pdp', async (req, res) => {
+  console.log(`post /mhs/:username/tugas-akhir/usulan-pdp`);
+  const username = req.params.username;
+  const usulanPdp = req.body;
+  console.log(username);
+  console.log(usulanPdp);
+
+  // update mhs mongodb
+  // tambah field usulan_pdp[]
+  try {
+    await mongoMhsCol.updateOne(
+      { _id: username },
+      { $push: { usulan_pdp: usulanPdp } }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send(false);
+  };
+
+  // update dosen mongodb
+  // ambil ta data
+  const taData = await mongodbGetData('tugas_akhir', usulanPdp.ta_id);
+  console.log(taData);
+  // tambah field usulan_pdp[]
+  try {
+    await mongoDosenCol.updateOne(
+      { _id: usulanPdp.username },
+      {
+        $push: {
+          usulan_pdp: {
+            ...taData,
+            degree: usulanPdp.degree,
+            tahap_usulan: usulanPdp.tahap,
+            msg: ''
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send(false);
   };
 
   res.send(true);

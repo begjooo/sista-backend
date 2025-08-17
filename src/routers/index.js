@@ -15,7 +15,7 @@ router.post('/register/dosen', async (req, res) => {
   );
 
   const mongodbResult = await mongodbInsertData(`dosen`, {
-    _id: data.username, fullname: '', minat: [], bimbingan_utama: [], usulan_ta: [], usulan_mhs: [],
+    _id: data.username, fullname: '', minat: [], bimbingan_utama: [], bimbingan_pdp: [], usulan_ta: [], usulan_mhs: [], usulan_pdp: [],
   });
 
   if (psqlResult.status && mongodbResult.status) {
@@ -36,7 +36,7 @@ router.post('/register/mhs', async (req, res) => {
   );
 
   const mongodbResult = await mongodbInsertData(`mahasiswa`, {
-    _id: data.username, name: data.name, tahun_ajaran: data.tahunAjaran,
+    _id: data.username, name: data.name, prodi: data.prodi, kelas: data.kelas, tahun_ajaran: data.tahunAjaran, cv: [],
   });
 
   if (psqlResult.status && mongodbResult.status) {

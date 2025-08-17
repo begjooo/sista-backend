@@ -1,4 +1,4 @@
-import { mongoDosenCol, mongoMhsCol } from "../db/mongo/conn.js";
+import { mongoDosenCol, mongoMhsCol, mongoTaCol } from "../db/mongo/conn.js";
 
 export async function mongodbInsertData(collection, data) {
   console.log(`mongodbInsertData()`);
@@ -40,14 +40,16 @@ export async function mongodbGetList(collection) {
   };
 };
 
-export async function mongodbGetData(collection, username) {
+export async function mongodbGetData(collection, id) {
   console.log(`mongodbGetData()`);
   try {
     let data = null;
     if (collection === 'dosen') {
-      data = await mongoDosenCol.findOne({ _id: username });
+      data = await mongoDosenCol.findOne({ _id: id });
     } else if (collection === 'mahasiswa') {
-      data = await mongoMhsCol.findOne({ _id: username });
+      data = await mongoMhsCol.findOne({ _id: id });
+    } else if (collection === 'tugas_akhir') {
+      data = await mongoTaCol.findOne({ _id: id });
     };
 
     return data;

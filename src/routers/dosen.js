@@ -793,19 +793,220 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
   res.send(true);
 });
 
+router.get('/:username/tugas-akhir/usulan-pdp', async (req, res) => {
+  console.log(`get /dosen/:username/tugas-akhir/usulan-pdp`);
+  const username = req.params.username;
+  const dosenData = await mongodbGetData(`dosen`, username);
+  if (dosenData.usulan_pdp) {
+    res.send(dosenData.usulan_pdp);
+  } else {
+    res.send(false);
+  };
+});
+
+router.post('/:username/tugas-akhir/usulan-pdp/diskusi', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan-pdp/diskusi`);
+  const username = req.params.username;
+  const data = req.body;
+
+  // update db mhs
+  // simpen pesan dari pbb dan update tahap menjadi 'Diskusi'
+  try {
+    await mongoMhsCol.updateOne(
+      { _id: data.mhsUsername, [`usulan_pdp.ta_id`]: data.id },
+      {
+        $set: {
+          [`usulan_pdp.$.tahap`]: 'Diskusi',
+          [`usulan_pdp.$.msg`]: data.message,
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+  };
+
+  // update db dosen
+  // pindahin dari mhs_pengusul ke mhs_diskusi dan tambahkan juga pesan dari dosen ke mhs
+  try {
+    await mongoDosenCol.updateOne(
+      { _id: username, [`usulan_pdp._id`]: data.id },
+      {
+        $set: {
+          [`usulan_pdp.$.tahap_usulan`]: 'Diskusi',
+          [`usulan_pdp.$.msg`]: data.message,
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error.message);
+  };
+
+  res.send(true);
+});
+
+router.post('/:username/tugas-akhir/usulan-pdp/tolak', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan-pdp/tolak`);
+  const username = req.params.username;
+  const taId = req.body.taId;
+  const mhsUsername = req.body.mhsUsername;
+  console.log(req.body);
+
+  // hapus mhs pada db dosen
+  try {
+    await mongoDosenCol.updateOne(
+      { _id: username },
+      { $pull: { usulan_pdp: { _id: taId } } }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send({
+      status: false,
+      message: error.message,
+    });
+  };
+
+  // hapus usulan_pdp pada db mhs terkait
+  try {
+    await mongoMhsCol.updateOne(
+      { _id: mhsUsername },
+      { $pull: { usulan_pdp: { ta_id: taId } } }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send({
+      status: false,
+      message: error.message,
+    });
+  };
+
+  res.send({
+    status: true,
+    message: `success delete ta ${taId}`,
+  });
+});
+
+router.post('/:username/tugas-akhir/usulan-pdp/terima', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan-pdp/terima`);
+  const username = req.params.username;
+  const data = req.body;
+  console.log(data);
+
+  // update db dosen
+  try {
+    await mongoDosenCol.updateOne(
+      { _id: username },
+      {
+        $push: {
+          bimbingan_pdp: {
+            id: data.taId,
+            degree: data.degree,
+            mhs_username: data.mhsUsername,
+            mhs_name: data.mhsName,
+          }
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send(false);
+  };
+
+  try {
+    await mongoDosenCol.updateOne(
+      { _id: username },
+      { $pull: { usulan_pdp: { _id: data.taId } } }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send(false);
+  };
+
+  const dosenPsqlData = await psqlGetData(`dosen`, username);
+
+  // update db mhs
+  try {
+    if (data.degree === 'Pembimbing Pendamping Pertama') {
+      await mongoMhsCol.updateOne(
+        { _id: data.mhsUsername },
+        {
+          $set: {
+            'tugas_akhir.dosen2_username': username,
+            'tugas_akhir.dosen2_fullname': dosenPsqlData.fullname,
+          }
+        }
+      );
+    } else if (data.degree === 'Pembimbing Pendamping Kedua') {
+      await mongoMhsCol.updateOne(
+        { _id: data.mhsUsername },
+        {
+          $set: {
+            'tugas_akhir.dosen3_username': username,
+            'tugas_akhir.dosen3_fullname': dosenPsqlData.fullname,
+          }
+        }
+      );
+    };
+
+  } catch (error) {
+    console.log(error.message);
+    res.send(false);
+  };
+
+  let updatedData = {};
+  if (data.degree === 'Pembimbing Pendamping Pertama') {
+    updatedData = {
+      dosen2_username: username,
+      dosen2_fullname: dosenPsqlData.fullname,
+    };
+  } else if (data.degree === 'Pembimbing Pendamping Kedua') {
+    updatedData = {
+      dosen3_username: username,
+      dosen3_fullname: dosenPsqlData.fullname,
+    };
+  };
+
+  try {
+    await mongoMhsCol.updateOne(
+      { _id: data.mhsUsername },
+      { $pull: { usulan_pdp: { ta_id: data.taId } } }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send(false);
+  };
+
+  // update db tugas_akhir
+  try {
+    await mongoTaCol.updateOne(
+      { _id: data.taId },
+      { $set: updatedData }
+    );
+  } catch (error) {
+    console.log(error.message);
+    res.send(false);
+  };
+
+  res.send(true);
+});
+
 router.get('/:username/bimbingan', async (req, res) => {
   console.log(`get /dosen/:username/bimbingan`);
   const username = req.params.username;
 
-  let mongodbBimbingan = [];
+  let dosenData = {};
   try {
-    mongodbBimbingan = await mongoDosenCol.findOne({ _id: username });
+    dosenData = await mongoDosenCol.findOne({ _id: username });
   } catch (error) {
     console.log(error.message);
     res.send(false)
   };
 
-  const taIdList = mongodbBimbingan.bimbingan_utama.map((item) => item.id);
+  const taIdListUtama = dosenData.bimbingan_utama.map((item) => item.id);
+  const taIdListPdp = dosenData.bimbingan_pdp.map((item) => item.id);
+
+  let taIdList = [];
+  taIdListUtama.forEach((item) => { taIdList.push(item) });
+  taIdListPdp.forEach((item) => { taIdList.push(item) });
 
   let taList = [];
   for await (const id of taIdList) {
@@ -817,5 +1018,23 @@ router.get('/:username/bimbingan', async (req, res) => {
     };
   };
 
-  res.send(taList);
+  let bimbinganUtama = [];
+  let bimbinganPdp1 = [];
+  let bimbinganPdp2 = [];
+
+  taList.forEach((item) => {
+    if (item.dosen1_username === username) {
+      bimbinganUtama.push(item);
+    } else if (item.dosen2_username === username) {
+      bimbinganPdp1.push(item);
+    } else if (item.dosen3_username === username) {
+      bimbinganPdp2.push(item);
+    };
+  });
+
+  res.send({
+    utama: bimbinganUtama,
+    pdp1: bimbinganPdp1,
+    pdp2: bimbinganPdp2,
+  });
 });
