@@ -11,11 +11,11 @@ router.post('/register/dosen', async (req, res) => {
   const psqlResult = await psqlInsertData(
     `dosen`,
     `(username, password, job)`,
-    `('${data.username}', '${data.password}', '${data.job}')`
+    `('${data.username.toUpperCase()}', '${data.password}', '${data.job}')`
   );
 
   const mongodbResult = await mongodbInsertData(`dosen`, {
-    _id: data.username, fullname: '', minat: [], bimbingan_utama: [], bimbingan_pdp: [], usulan_ta: [], usulan_mhs: [], usulan_pdp: [],
+    _id: data.username.toUpperCase(), fullname: '', minat: [], bimbingan_utama: [], bimbingan_pdp: [], usulan_ta: [], usulan_mhs: [], usulan_pdp: [],
   });
 
   if (psqlResult.status && mongodbResult.status) {
@@ -48,7 +48,7 @@ router.post('/register/mhs', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   console.log(`/login`)
-  const username = req.body.username;
+  const username = req.body.username.toUpperCase();
   const password = req.body.password;
 
   const loginResult = await login(username, password);

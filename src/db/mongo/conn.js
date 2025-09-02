@@ -20,10 +20,15 @@ export async function mongoConn() {
     // Connect the client to the server	(optional starting in v4.7)
     await mongoClient.connect();
     const db = mongoClient.db('sista');
+
+    await db.createCollection('dosen');
+    await db.createCollection('mahasiswa');
+    await db.createCollection('tugas_akhir');
+
     mongoDosenCol = db.collection('dosen');
     mongoMhsCol = db.collection('mahasiswa');
     mongoTaCol = db.collection('tugas_akhir');
-    
+
     // Send a ping to confirm a successful connection
     await mongoClient.db("admin").command({ ping: 1 });
     console.log("mongodb: successfully connected to mongodb");

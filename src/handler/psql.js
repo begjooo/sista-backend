@@ -26,17 +26,17 @@ export async function psqlInit() {
     {
       name: `dosen`,
       query: `(
-        username varchar(18) primary key,
-        password varchar(100),
-        name varchar(100),
-        email varchar(255),
-        kode varchar(10),
-        kbk varchar(100),
-        gelar_depan varchar(20),
-        gelar_belakang varchar(20),
-        fullname varchar(150),
-        jabatan_fungsional varchar(30),
-        job varchar(20)
+        username varchar(6) primary key,
+        password varchar,
+        name varchar,
+        nip varchar,
+        email varchar,
+        kbk varchar,
+        gelar_depan varchar,
+        gelar_belakang varchar,
+        fullname varchar,
+        jabatan_fungsional varchar,
+        job varchar
       );`,
     },
     {
@@ -94,7 +94,7 @@ export async function psqlGetList(tableName, job) {
   console.log(`psqlGetList()`);
   try {
     const result = await psql.query(`select 
-      username, kode, kbk, fullname, jabatan_fungsional, job
+      username, nip, kbk, fullname, jabatan_fungsional, job
       from ${tableName} where job = '${job}';`);
     return result;
   } catch (error) {

@@ -34,7 +34,9 @@ router.get('/:username/data-full', async (req, res) => {
   console.log(`get /dosen/:username/data-full`);
   const username = req.params.username;
   const psqlData = await psqlGetFullData(`dosen`, username);
-  res.send(psqlData);
+  const mongodbData = await mongodbGetData(`dosen`, username);
+  const data = { ...psqlData, minat: mongodbData.minat };
+  res.send(data);
 });
 
 router.put('/:username/profile', async (req, res) => {
@@ -45,14 +47,18 @@ router.put('/:username/profile', async (req, res) => {
   let fullname = '';
   if (data.gelar_depan) {
     fullname = `${data.gelar_depan} `;
+  } else {
+    data.gelar_depan = '';
   };
 
   if (data.gelar_belakang) {
     fullname += `${data.name}, ${data.gelar_belakang}`;
   };
 
+  console.log(fullname);
+
   await psqlUpdateData(`dosen`, username,
-    `name = '${data.name}', email = '${data.email}', kode = '${data.kode}',
+    `name = '${data.name}', email = '${data.email}', nip = '${data.nip}',
     kbk = '${data.kbk}', gelar_depan = '${data.gelar_depan}', gelar_belakang = '${data.gelar_belakang}',
     fullname = '${fullname}', jabatan_fungsional = '${data.jabatan_fungsional}'`
   );
@@ -134,8 +140,10 @@ router.get('/:username/tugas-akhir/usulan', async (req, res) => {
 router.post('/:username/tugas-akhir/usulan', async (req, res) => {
   console.log(`post /dosen/:username/tugas-akhir/usulan`);
   const username = req.params.username;
-  let usulanTa = { ...req.body };
-  usulanTa.id = new ObjectId().toString();
+  let usulanTa = {
+    id: new ObjectId().toString(),
+    ...req.body
+  };
   const result = await mongodbUpdateData(`dosen`, username, { $push: { usulan_ta: usulanTa } });
   res.send(result);
 });
@@ -447,6 +455,7 @@ router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
   let taData = {
     _id: data.taId,
     judul: mhsTaData.judul,
+    skema: mhsTaData.skema,
     kbk: mhsTaData.kbk,
     minat: mhsTaData.minat,
     mhs_username: data.mhsUsername,
@@ -605,8 +614,8 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
   console.log(`post /dosen/:username/tugas-akhir/usulan-mhs/terima`);
   const username = req.params.username;
   const data = req.body;
-  console.log(username);
-  console.log(data);
+  // console.log(username);
+  // console.log(data);
 
   // update db mhs
   // ambil data ta
@@ -623,7 +632,7 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
     res.send(false);
   };
 
-  console.log(mhsTaData);
+  // console.log(mhsTaData);
 
   // pindahin ke mhsTaData ke field tugas_akhir
   try {
@@ -726,6 +735,7 @@ router.post('/:username/tugas-akhir/usulan-mhs/terima', async (req, res) => {
   let taData = {
     _id: data.taId,
     judul: mhsTaData.judul,
+    skema: mhsTaData.skema,
     kbk: mhsTaData.kbk,
     minat: mhsTaData.minat,
     mhs_username: data.mhsUsername,

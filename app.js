@@ -21,7 +21,7 @@ app.use(cors({
 
 await psqlConn();
 await psqlInit();
-await psqlInsertData(`dosen`, `(username, password, name, fullname, job)`, `('121314151617181910', 'admin', 'Admin', 'Admin', 'admin')`);
+await psqlInsertData(`dosen`, `(username, password, name, fullname, job)`, `('EE000E', 'admin', 'Admin', 'Admin', 'admin')`);
 await mongoConn();
 
 app.use('/', routerIndex);
