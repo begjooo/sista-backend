@@ -1,7 +1,5 @@
 import jwt from "jsonwebtoken";
-import { psqlGetData, psqlGetFullData } from "./psql.js";
-
-const { JsonWebTokenError } = jwt;
+import { psqlGetData } from "./psql.js";
 
 const AccessEnum = {
   0: 'error',
@@ -13,7 +11,7 @@ const AccessEnum = {
 
 async function identifyAccess(username) {
   console.log(`identify access (admin, dosen, tendik, or mhs)`);
-  if (username.length === 18 && username === '121314151617181910') {
+  if (username.length === 6 && username === 'EE000E') {
     return AccessEnum[1];
   } else if (username.length === 6) {
     return AccessEnum[2];
@@ -26,15 +24,15 @@ async function identifyAccess(username) {
   };
 };
 
-async function checkEntity(access, username, password) {
-  console.log(`checkEntity()`);
+async function checkLogin(access, username, password) {
+  console.log(`checkLogin()`);
   let user = null;
   if (access === AccessEnum[1] || access === AccessEnum[2]) {
-    user = await psqlGetFullData(`dosen`, username);
+    user = await psqlGetData(`dosen`, username, true);
   } else if (access === AccessEnum[3]) {
-    user = await psqlGetFullData(`tendik`, username);
+    user = await psqlGetData(`tendik`, username, true);
   } else if (access === AccessEnum[4]) {
-    user = await psqlGetFullData(`mahasiswa`, username);
+    user = await psqlGetData(`mahasiswa`, username, true);
   };
 
   if (user.password === password) {
@@ -50,20 +48,14 @@ async function checkEntity(access, username, password) {
 export async function login(username, password) {
   console.log(`[${username}] try to login`);
   const access = await identifyAccess(username);
-
   if (access !== AccessEnum[0]) {
-    let result = await checkEntity(access, username, password);
-
+    let result = await checkLogin(access, username, password);
     if (result) {
-      const token = jwt.sign({
-        username: result.username,
-        job: result.job,
-      }, 'secret');
-
+      const token = jwt.sign({ username: result.username, job: result.job }, 'secret');
       return { username: result.username, job: result.job, token };
     } else {
       return 0;
-    }
+    };
   } else {
     return 0;
   };

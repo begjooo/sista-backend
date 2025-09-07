@@ -1,8 +1,7 @@
 import express from "express";
-import { mongoDosenCol, mongoMhsCol, mongoTaCol } from "../db/mongo/conn.js";
-import { psqlGetFullList, psqlGetList, psqlGetFullData, psqlGetData, psqlUpdateData } from "../handler/psql.js";
-import { mongodbGetList, mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
-import { combinePsqlAndMongodb } from "../handler/additional.js";
+import { psqlGetList, psqlGetData, psqlUpdateData } from "../handler/psql.js";
+import { mongoDosenCol, mongoMhsCol, mongoTaCol, mongodbGetList, mongodbGetData, mongodbUpdateData } from "../handler/mongo.js";
+import { combinePsqlMongo } from "../handler/additional.js";
 import { ObjectId } from "mongodb";
 
 export const router = express.Router();
@@ -11,15 +10,15 @@ router.get('/list', async (req, res) => {
   console.log(`get /dosen/list`);
   const psqlData = await psqlGetList(`dosen`, `dosen`);
   const mongodbData = await mongodbGetList(`dosen`);
-  const list = combinePsqlAndMongodb(psqlData, mongodbData);
+  const list = combinePsqlMongo(psqlData, mongodbData);
   res.send(list);
 });
 
 router.get('/list-full', async (req, res) => {
   console.log(`get /dosen/list-full`);
-  const psqlData = await psqlGetFullList(`dosen`, `dosen`);
+  const psqlData = await psqlGetList(`dosen`, `dosen`);
   const mongodbData = await mongodbGetList(`dosen`);
-  const list = combinePsqlAndMongodb(psqlData, mongodbData);
+  const list = combinePsqlMongo(psqlData, mongodbData);
   res.send(list);
 });
 
@@ -33,7 +32,7 @@ router.get('/:username/data', async (req, res) => {
 router.get('/:username/data-full', async (req, res) => {
   console.log(`get /dosen/:username/data-full`);
   const username = req.params.username;
-  const psqlData = await psqlGetFullData(`dosen`, username);
+  const psqlData = await psqlGetData(`dosen`, username, true);
   const mongodbData = await mongodbGetData(`dosen`, username);
   const data = { ...psqlData, minat: mongodbData.minat };
   res.send(data);
@@ -122,23 +121,23 @@ router.delete('/:username/penelitian/minat', async (req, res) => {
   };
 });
 
-// usulan dari dosen
-router.get('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`get /dosen/:username/tugas-akhir/usulan`);
+// usulan judul dari dosen
+router.get('/:username/tugas-akhir/usulan-dosen', async (req, res) => {
+  console.log(`get /dosen/:username/tugas-akhir/usulan-dosen`);
   const username = req.params.username;
   const psqlData = await psqlGetData(`dosen`, username);
-  const kbk = psqlData.kbk;
-
   const mongodbData = await mongodbGetData(`dosen`, username);
-  const minat = mongodbData.minat;
-  const usulanTa = mongodbData.usulan_ta;
-  const jmlBimbinganUtama = mongodbData.bimbingan_utama.length;
 
-  res.send({ kbk, minat, usulanTa, jmlBimbinganUtama });
+  res.send({
+    kbk: psqlData.kbk,
+    minat: mongodbData.minat,
+    usulanTa: mongodbData.usulan_ta,
+    jmlBimbinganUtama: mongodbData.bimbingan_utama.length,
+  });
 });
 
-router.post('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`post /dosen/:username/tugas-akhir/usulan`);
+router.post('/:username/tugas-akhir/usulan-dosen', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan-dosen`);
   const username = req.params.username;
   let usulanTa = {
     id: new ObjectId().toString(),
@@ -148,8 +147,8 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
   res.send(result);
 });
 
-router.delete('/:username/tugas-akhir/usulan', async (req, res) => {
-  console.log(`delete /dosen/:username/tugas-akhir/usulan`);
+router.delete('/:username/tugas-akhir/usulan-dosen', async (req, res) => {
+  console.log(`delete /dosen/:username/tugas-akhir/usulan-dosen`);
   const username = req.params.username;
   const taId = req.body.taId;
 
@@ -181,8 +180,8 @@ router.delete('/:username/tugas-akhir/usulan', async (req, res) => {
   });
 });
 
-router.post('/:username/tugas-akhir/usulan/tolak', async (req, res) => {
-  console.log(`post /dosen/:username/tugas-akhir/usulan/tolak`);
+router.delete('/:username/tugas-akhir/usulan-dosen/tolak', async (req, res) => {
+  console.log(`delete /dosen/:username/tugas-akhir/usulan-dosen/tolak`);
   const username = req.params.username;
   const taId = req.body.taId;
   const mhsUsername = req.body.mhsUsername;
@@ -227,8 +226,8 @@ router.post('/:username/tugas-akhir/usulan/tolak', async (req, res) => {
   });
 });
 
-router.post('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
-  console.log(`post /dosen/:username/tugas-akhir/usulan/diskusi`);
+router.post('/:username/tugas-akhir/usulan-dosen/diskusi', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan-dosen/diskusi`);
   const username = req.params.username;
   const data = req.body;
 
@@ -287,8 +286,8 @@ router.post('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
   res.send(true);
 });
 
-router.delete('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
-  console.log(`delete /dosen/:username/tugas-akhir/usulan/diskusi`);
+router.delete('/:username/tugas-akhir/usulan-dosen/diskusi', async (req, res) => {
+  console.log(`delete /dosen/:username/tugas-akhir/usulan-dosen/diskusi`);
   const username = req.params.username;
   const data = req.body;
 
@@ -323,8 +322,8 @@ router.delete('/:username/tugas-akhir/usulan/diskusi', async (req, res) => {
   res.send(true);
 });
 
-router.post('/:username/tugas-akhir/usulan/terima', async (req, res) => {
-  console.log(`post /dosen/:username/tugas-akhir/usulan/terima`);
+router.post('/:username/tugas-akhir/usulan-dosen/terima', async (req, res) => {
+  console.log(`post /dosen/:username/tugas-akhir/usulan-dosen/terima`);
   const username = req.params.username;
   const data = req.body;
 

@@ -1,4 +1,4 @@
-export function combinePsqlAndMongodb(psql, mongo) {
+export function combinePsqlMongo(psql, mongo) {
   const mergedMap = new Map();
 
   psql.forEach((item) => {

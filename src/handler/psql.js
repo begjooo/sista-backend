@@ -1,6 +1,21 @@
-import { psql } from "../db/psql/conn.js";
+import pgPromise from "pg-promise";
 
-export async function createTable(tableName, columnQuery) {
+const pgp = pgPromise({});
+
+export const psql = pgp(`postgres://${process.env.PSQL_USERNAME}:${process.env.PSQL_PASSWORD}@${process.env.PSQL_HOST}:${process.env.PSQL_PORT}/${process.env.PSQL_DB_NAME}`);
+
+export async function psqlConn() {
+  try {
+    await psql.connect();
+    console.log(`psql: connection to '${process.env.PSQL_DB_NAME}' db success`);
+    return true;
+  } catch (error) {
+    console.log(`psql: ${error.message}`);
+    return false;
+  };
+};
+
+async function createTable(tableName, columnQuery) {
   console.log(`psql: create '${tableName}' table`);
   try {
     await psql.query(`create table ${tableName} ${columnQuery};`);
@@ -10,14 +25,31 @@ export async function createTable(tableName, columnQuery) {
   };
 };
 
-export async function checkTable(tableName) {
+async function checkTable(tableName) {
   console.log(`checkTable()`);
   try {
-    const isTableExist = await psql.query(`select * from ${tableName};`);
+    await psql.query(`select * from ${tableName};`);
     return true;
   } catch (error) {
     console.log(`psql: ${error.message}`);
     return false;
+  };
+};
+
+export async function psqlInsert(tableName, columnQuery, valueQuery) {
+  console.log(`psqlInsert()`);
+  try {
+    await psql.query(`insert into ${tableName} ${columnQuery} values ${valueQuery};`);
+    return {
+      status: true,
+      message: `psql: insert data success!`,
+    };
+  } catch (error) {
+    console.log(`psql: ${error.message}`);
+    return {
+      status: false,
+      message: `${error.message}`,
+    };
   };
 };
 
@@ -52,6 +84,13 @@ export async function psqlInit() {
         job varchar(20)
       );`,
     },
+    {
+      name: `aturan_ta`,
+      query: `(
+        keterangan varchar primary key,
+        value varchar
+      );`,
+    },
   ];
 
   for await (const item of TableEnum) {
@@ -60,42 +99,23 @@ export async function psqlInit() {
       await createTable(item.name, item.query);
     };
   };
+
+  await psqlInsert(`dosen`, `(username, password, name, fullname, job)`, `('EE000E', 'admin', 'Admin', 'Admin', 'admin')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('jml_penguji', '3')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('usulan_tgl_awal', '2025-09-01')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('usulan_tgl_akhir', '2025-09-30')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('pelaksanaan_tgl_awal', '2025-09-01')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('pelaksanaan_tgl_akhir', '2026-08-31')`);
 };
 
-export async function psqlInsertData(tableName, columnQuery, valueQuery) {
-  console.log(`psqlInsertData()`);
-  try {
-    await psql.query(`insert into ${tableName} ${columnQuery} values ${valueQuery};`);
-    return {
-      status: true,
-      message: `psql: insert data success!`,
-    };
-  } catch (error) {
-    console.log(`psql: ${error.message}`);
-    return {
-      status: false,
-      message: `${error.message}`,
-    };;
-  };
-};
-
-export async function psqlGetFullList(tableName, job) {
-  console.log(`psqlGetFullList()`);
-  try {
-    const result = await psql.query(`select * from ${tableName} where job = '${job}';`);
-    return result;
-  } catch (error) {
-    console.log(`psql: ${error.message}`);
-    return false;
-  };
-};
-
-export async function psqlGetList(tableName, job) {
+export async function psqlGetList(tableName, job, password = false) {
   console.log(`psqlGetList()`);
   try {
-    const result = await psql.query(`select 
-      username, nip, kbk, fullname, jabatan_fungsional, job
-      from ${tableName} where job = '${job}';`);
+    let result = await psql.query(`select * from ${tableName} where job = '${job}';`);
+    if (!password) {
+      result.forEach((item) => { delete item.password });
+    };
+
     return result;
   } catch (error) {
     console.log(`psql: ${error.message}`);
@@ -103,22 +123,14 @@ export async function psqlGetList(tableName, job) {
   };
 };
 
-export async function psqlGetFullData(tableName, username) {
-  console.log(`psqlGetFullData()`);
-  try {
-    const result = await psql.one(`select * from ${tableName} where username = '${username}';`);
-    return result;
-  } catch (error) {
-    console.log(`psql: ${error.message}`);
-    return false;
-  };
-};
-
-export async function psqlGetData(tableName, username) {
+export async function psqlGetData(tableName, username, password = false) {
   console.log(`psqlGetData()`);
   try {
     let result = await psql.one(`select * from ${tableName} where username = '${username}';`);
-    delete result.password;
+    if (!password) {
+      delete result.password;
+    };
+
     return result;
   } catch (error) {
     console.log(`psql: ${error.message}`);

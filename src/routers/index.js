@@ -1,14 +1,14 @@
 import express from "express";
 import { getLoggedUser, login } from "../handler/auth.js";
-import { psqlInsertData } from "../handler/psql.js";
-import { mongodbInsertData } from "../handler/mongodb.js";
+import { psqlInsert } from "../handler/psql.js";
+import { mongodbInsertData } from "../handler/mongo.js";
 
 export const router = express.Router();
 
 router.post('/register/dosen', async (req, res) => {
   console.log('/register/dosen');
   const data = req.body;
-  const psqlResult = await psqlInsertData(
+  const psqlResult = await psqlInsert(
     `dosen`,
     `(username, password, job)`,
     `('${data.username.toUpperCase()}', '${data.password}', '${data.job}')`
@@ -29,7 +29,7 @@ router.post('/register/mhs', async (req, res) => {
   console.log('/register/mhs');
   const data = req.body;
 
-  const psqlResult = await psqlInsertData(
+  const psqlResult = await psqlInsert(
     `mahasiswa`,
     `(username, password, name, email, tahun_ajaran, prodi, kelas, job)`,
     `('${data.username}', '${data.password}', '${data.name}', '${data.email}', '${data.tahunAjaran}', '${data.prodi}', '${data.kelas}', 'mahasiswa')`

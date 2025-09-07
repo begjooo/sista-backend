@@ -1,14 +1,16 @@
 import express from "express";
-import { psqlGetData } from "../handler/psql.js";
-import { mongodbGetData, mongodbUpdateData } from "../handler/mongodb.js";
-import { mongoDosenCol, mongoMhsCol } from "../db/mongo/conn.js";
+import { psqlGetData, psqlGetList, psqlUpdateData } from "../handler/psql.js";
+import { mongoDosenCol, mongoMhsCol, mongoTaCol, mongodbGetData, mongodbGetList, mongodbUpdateData } from "../handler/mongo.js";
 import { ObjectId } from "mongodb";
+import { combinePsqlMongo } from "../handler/additional.js";
 
 export const router = express.Router();
 
 router.get('/list', async (req, res) => {
-  // const list = await getMhsList();
-  // res.send(list);
+  const psqlData = await psqlGetList(`mahasiswa`, `mahasiswa`);
+  // const mongodbData = await mongodbGetList(`mahasiswa`);
+  // const list = combinePsqlMongo(psqlData, mongodbData);
+  res.send(psqlData);
 });
 
 router.get('/:username/data', async (req, res) => {
@@ -24,6 +26,37 @@ router.get('/:username/data', async (req, res) => {
   };
 });
 
+router.get('/:username/data-full', async (req, res) => {
+  const username = req.params.username;
+  const psqlData = await psqlGetData(`mahasiswa`, username, true);
+  console.log(psqlData);
+  res.send(psqlData);
+});
+
+router.put('/:username/profile', async (req, res) => {
+  const username = req.params.username;
+  const data = req.body;
+  console.log(username);
+  console.log(data);
+
+  await psqlUpdateData(`mahasiswa`, username,
+    `name = '${data.name}', email = '${data.email}', tahun_ajaran = '${data.tahun_ajaran}',
+    prodi = '${data.prodi}', kelas = '${data.kelas}'`
+  );
+
+  await mongodbUpdateData(`mahasiswa`, username, { $set: { name: data.name } });
+  await mongoTaCol.updateOne({ mhs_username: username }, { $set: { mhs_name: data.name } });
+
+  res.send(true);
+});
+
+router.put('/:username/profile/password', async (req, res) => {
+  console.log(`put /mhs/:username/profile/password`);
+  const username = req.params.username;
+  const newPassword = req.body.password;
+  await psqlUpdateData(`mahasiswa`, username, `password = '${newPassword}'`);
+  res.send(true);
+});
 
 router.get('/:username/cv', async (req, res) => {
   console.log(`get /mhs/:username/cv`);
@@ -82,8 +115,8 @@ router.get('/:username/tugas-akhir/usulan', async (req, res) => {
       pribadi: psqlData,
       portofolio: mongodbData.portofolio,
       usulan_ta: mongodbData.usulan_ta,
-      tugas_akhir: mongodbData.tugas_akhir,
       usulan_pdp: mongodbData.usulan_pdp,
+      tugas_akhir: mongodbData.tugas_akhir,
     });
   } else {
     res.send(false);
@@ -94,8 +127,6 @@ router.post('/:username/tugas-akhir/usulan', async (req, res) => {
   console.log(`post /mhs/:username/tugas-akhir/usulan`)
   const username = req.params.username;
   const usulanData = req.body;
-  // console.log(username);
-  // console.log(usulanData)
 
   let usulanMhs = { ...usulanData };
   delete usulanMhs.name;
@@ -143,8 +174,6 @@ router.post('/:username/tugas-akhir/usulan-pdp', async (req, res) => {
   console.log(`post /mhs/:username/tugas-akhir/usulan-pdp`);
   const username = req.params.username;
   const usulanPdp = req.body;
-  console.log(username);
-  console.log(usulanPdp);
 
   // update mhs mongodb
   // tambah field usulan_pdp[]
