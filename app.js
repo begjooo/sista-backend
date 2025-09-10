@@ -9,6 +9,7 @@ import { router as routerAdmin } from "./src/routers/admin.js";
 import { router as routerDosen } from "./src/routers/dosen.js";
 import { router as routerMhs } from "./src/routers/mhs.js";
 import { router as routerTa } from "./src/routers/ta.js";
+import { serverIp } from "./src/serverIp.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -17,7 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   credentials: true,
-  origin: ['http://localhost:3000', 'http://localhost:5173'],
+  origin: [serverIp, 'http://localhost:5173'],
 }));
 
 await psqlConn();
