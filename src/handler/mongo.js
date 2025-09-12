@@ -1,6 +1,6 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 
-const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster.8gmzy5j.mongodb.net/?retryWrites=true&w=majority&appName=Cluster`;
+const uri = process.env.MONGODB_URI;
 
 export let mongoDosenCol = null;
 export let mongoMhsCol = null;
