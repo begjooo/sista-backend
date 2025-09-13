@@ -17,7 +17,7 @@ async function identifyAccess(username) {
     return AccessEnum[2];
   } else if (username.length === 8) {
     return AccessEnum[3];
-  } else if (username.length === 3) {
+  } else if (username.length === 9) {
     return AccessEnum[4];
   } else {
     return AccessEnum[0];

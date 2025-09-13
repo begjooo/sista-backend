@@ -101,11 +101,21 @@ export async function psqlInit() {
   };
 
   await psqlInsert(`dosen`, `(username, password, name, fullname, job)`, `('EE000E', 'admin', 'Admin', 'Admin', 'admin')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('max_bimbingan_utama', '6')`);
   await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('jml_penguji', '3')`);
   await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('usulan_tgl_awal', '2025-09-01')`);
   await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('usulan_tgl_akhir', '2025-09-30')`);
   await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('pelaksanaan_tgl_awal', '2025-09-01')`);
   await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('pelaksanaan_tgl_akhir', '2026-08-31')`);
+};
+
+export async function psqlRemove(tableName, username) {
+  console.log(`psqlRemove()`);
+  try {
+    await psql.query(`delete from ${tableName} where username = '${username}';`);
+  } catch (error) {
+    console.log(error);
+  };
 };
 
 export async function psqlGetList(tableName, job, password = false) {

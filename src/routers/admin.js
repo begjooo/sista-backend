@@ -1,6 +1,6 @@
 import express from "express";
-import { psqlGetData } from "../handler/psql.js";
-import { mongoDosenCol } from "../handler/mongo.js";
+import { psqlGetData, psqlRemove } from "../handler/psql.js";
+import { mongoDosenCol, mongoMhsCol } from "../handler/mongo.js";
 
 export const router = express.Router();
 
@@ -8,6 +8,35 @@ router.get('/data/:username', async (req, res) => {
   const username = req.params.username;
   const data = await psqlGetData(`dosen`, username, true);
   res.send(data);
+});
+
+router.delete('/:job', async (req, res) => {
+  console.log(`delete /admin/:job`);
+  const job = req.params.job;
+  const username = req.body.username;
+  console.log(job, username);
+
+  try {
+    switch (job) {
+      case 'dosen':
+        console.log(`hapus dosen`);
+        await mongoDosenCol.deleteOne({ _id: username });
+        break;
+      case 'mahasiswa':
+        console.log(`hapus mhs`);
+        await mongoMhsCol.deleteOne({ _id: username });
+        break;
+      default:
+        console.log(`hapus tendik/plp`)
+        break;
+    }
+  } catch (error) {
+    console.log(error.message);
+  };
+
+  await psqlRemove(job, username);
+
+  res.send(true);
 });
 
 router.get('/usulan-ta', async (req, res) => {

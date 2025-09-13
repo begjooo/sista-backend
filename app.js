@@ -17,7 +17,11 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
   credentials: true,
-  origin: ['http://192.168.1.161:80', 'http://192.168.80.132:81', 'http://localhost:5173'],
+  origin: [
+    'http://localhost:5173',
+    'http://192.168.80.132:81',
+    'http://192.168.1.161:80',
+  ],
 }));
 
 await psqlConn();
