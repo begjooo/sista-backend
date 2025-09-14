@@ -42,8 +42,8 @@ app.use('/ta', routerTa);
 // });
 
 const sslOptions = {
-  key: fs.readFileSync(`./cert/key.pem`),
-  cert: fs.readFileSync('./cert/cert.pem'),
+  key: fs.readFileSync(`./cert/key.pem`, 'utf-8'),
+  cert: fs.readFileSync('./cert/cert.pem', 'utf-8'),
 };
 
 createServer(sslOptions, app).listen(port, () => {

@@ -5,6 +5,10 @@ import { mongodbInsertData } from "../handler/mongo.js";
 
 export const router = express.Router();
 
+router.get('/', (req, res) => {
+  res.send(`welcome`);
+});
+
 router.post('/register/dosen', async (req, res) => {
   console.log('/register/dosen');
   const data = req.body;
@@ -79,6 +83,11 @@ router.post('/user', async (req, res) => {
 
 router.post('/logout', (req, res) => {
   console.log('logout');
-  res.cookie('jwt', '', { maxAge: 0 });
+  res.cookie('jwt', '', {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'none',
+    maxAge: 0,
+  });
   res.send('logout success');
 });
