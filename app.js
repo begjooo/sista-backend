@@ -1,4 +1,6 @@
 import express from "express";
+import { createServer } from 'node:https';
+import fs from 'node:fs';
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import 'dotenv/config';
@@ -35,6 +37,15 @@ app.use('/dosen', routerDosen);
 app.use('/mhs', routerMhs);
 app.use('/ta', routerTa);
 
-app.listen(port, () => {
+// app.listen(port, () => {
+//   console.log(`Server listening on port ${port}`);
+// });
+
+const sslOptions = {
+  key: fs.readFileSync(`./cert/key.pem`),
+  cert: fs.readFileSync('./cert/cert.pem'),
+};
+
+createServer(sslOptions, app).listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
