@@ -21,6 +21,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://192.168.80.132:81',
     'http://192.168.1.161:80',
+    'https://1633cff5314d.ngrok-free.app', // ngrok frontend url
   ],
 }));
 

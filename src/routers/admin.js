@@ -29,7 +29,7 @@ router.delete('/:job', async (req, res) => {
       default:
         console.log(`hapus tendik/plp`)
         break;
-    }
+    };
   } catch (error) {
     console.log(error.message);
   };

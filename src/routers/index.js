@@ -32,7 +32,7 @@ router.post('/register/mhs', async (req, res) => {
   const psqlResult = await psqlInsert(
     `mahasiswa`,
     `(username, password, name, email, tahun_ajaran, prodi, kelas, job)`,
-    `('${data.username}', '${data.password}', '${data.name}', '${data.email}', '${data.tahunAjaran}', '${data.prodi}', '${data.kelas}', 'mahasiswa')`
+    `('${data.username.toUpperCase()}', '${data.password}', '${data.name}', '${data.email}', '${data.tahunAjaran}', '${data.prodi}', '${data.kelas}', 'mahasiswa')`
   );
 
   const mongodbResult = await mongodbInsertData(`mahasiswa`, {
@@ -55,7 +55,9 @@ router.post('/login', async (req, res) => {
 
   if (loginResult) {
     res.cookie('jwt', loginResult.token, {
+      secure: true,
       httpOnly: true,
+      sameSite: 'none',
       maxAge: 24 * 60 * 60 * 1000,
     });
 
