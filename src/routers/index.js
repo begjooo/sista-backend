@@ -5,10 +5,6 @@ import { mongodbInsertData } from "../handler/mongo.js";
 
 export const router = express.Router();
 
-router.get('/', (req, res) => {
-  res.send(`welcome`);
-});
-
 router.get('/en-cert', (req, res) => {
   res.send(`SSL ready!`);
 });
