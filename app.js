@@ -1,6 +1,4 @@
 import express from "express";
-import { createServer } from 'node:https';
-import fs from 'node:fs';
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import 'dotenv/config';
@@ -20,9 +18,9 @@ app.use(cookieParser());
 app.use(cors({
   credentials: true,
   origin: [
-    'http://localhost:5173',
-    'http://192.168.80.132:81',
-    'http://192.168.1.161:80',
+    'http://localhost:5173', // local
+    'http://192.168.80.132:81', // dummy server
+    'http://192.168.1.161:80', // telkom server
     'https://1633cff5314d.ngrok-free.app', // ngrok frontend url
   ],
 }));
@@ -40,12 +38,3 @@ app.use('/ta', routerTa);
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
-
-// const sslOptions = {
-//   key: fs.readFileSync(`./cert/key.pem`, 'utf-8'),
-//   cert: fs.readFileSync('./cert/cert.pem', 'utf-8'),
-// };
-
-// createServer(sslOptions, app).listen(port, () => {
-//   console.log(`Server listening on port ${port}`);
-// });
