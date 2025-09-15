@@ -37,15 +37,15 @@ app.use('/dosen', routerDosen);
 app.use('/mhs', routerMhs);
 app.use('/ta', routerTa);
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
-
-// const sslOptions = {
-//   key: fs.readFileSync(`./cert/key.pem`, 'utf-8'),
-//   cert: fs.readFileSync('./cert/cert.pem', 'utf-8'),
-// };
-
-// createServer(sslOptions, app).listen(port, () => {
+// app.listen(port, () => {
 //   console.log(`Server listening on port ${port}`);
 // });
+
+const sslOptions = {
+  key: fs.readFileSync(`./cert/key.pem`, 'utf-8'),
+  cert: fs.readFileSync('./cert/cert.pem', 'utf-8'),
+};
+
+createServer(sslOptions, app).listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});

@@ -9,6 +9,10 @@ router.get('/', (req, res) => {
   res.send(`welcome`);
 });
 
+router.get('/en-cert', (req, res) => {
+  res.send(`SSL ready!`);
+});
+
 router.post('/register/dosen', async (req, res) => {
   console.log('/register/dosen');
   const data = req.body;
