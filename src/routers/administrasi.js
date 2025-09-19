@@ -8,13 +8,15 @@ export const router = express.Router();
 const localStorage = multer.diskStorage({
   destination: admDirPath,
   filename: function (req, file, cb) {
+    console.log(`filename`);
+    console.log(req.body.formData);
     cb(null, `${file.originalname}`);
   },
 });
 
 const multerAdministrasi = multer({ storage: localStorage });
 
-router.post('/', multerAdministrasi.single(`file`), (req, res) => {
+router.post('/dok', multerAdministrasi.single(`file`), (req, res) => {
   console.log(`post /administrasi`);
   res.send(true);
 });

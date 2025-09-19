@@ -15,7 +15,7 @@ export async function psqlConn() {
   };
 };
 
-async function createTable(tableName, columnQuery) {
+export async function createTable(tableName, columnQuery) {
   console.log(`psql: create '${tableName}' table`);
   try {
     await psql.query(`create table ${tableName} ${columnQuery};`);
@@ -89,6 +89,16 @@ export async function psqlInit() {
       query: `(
         keterangan varchar primary key,
         value varchar
+      );`,
+    },
+    {
+      name: `template_dok`,
+      query: `(
+        kode varchar primary key,
+        name varchar,
+        type varchar,
+        keterangan varchar,
+        path varchar
       );`,
     },
   ];

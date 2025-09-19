@@ -1,5 +1,5 @@
 import express from "express";
-import { psqlGetData, psqlRemove } from "../handler/psql.js";
+import { createTable, psql, psqlGetData, psqlInsert, psqlRemove } from "../handler/psql.js";
 import { mongoDosenCol, mongoMhsCol } from "../handler/mongo.js";
 
 export const router = express.Router();
@@ -92,4 +92,59 @@ router.get('/usulan-ta', async (req, res) => {
   });
 
   res.send({ usulanDosen, usulanMhs });
+});
+
+// buat db dokumen
+router.get('db-doc', async (req, res) => {
+  console.log(`get /admin/db-doc`);
+  const dbList = await psql.query();
+  res.send(true);
+});
+
+// router.post('/db-doc', async (req, res) => {
+//   console.log(`post /admin/db-doc`);
+//   const tableName = req.body.tableName;
+//   const columns = req.body.columns;
+
+//   let query = '(';
+
+//   columns.forEach((item, index) => {
+//     query += `${item.name} ${item.type}`;
+//     if (item.pkey) {
+//       query += ` primary key`
+//     };
+
+//     if (index !== columns.length - 1) {
+//       query += `, `;
+//     };
+//   });
+
+//   query += ');';
+
+//   await createTable(tableName, query);
+//   res.send(true);
+// });
+
+router.post('/template', async (req, res) => {
+  console.log(`post /admin/template`);
+  const values = req.body;
+  let value = '(';
+
+  values.forEach((item, index) => {
+    if (index === 0) {
+      value += `'${item.toUpperCase()}'`;
+    } else {
+      value += `'${item}'`;
+    };
+
+    if (index !== values.length - 1) {
+      value += `, `;
+    };
+  });
+
+  value += ')';
+  console.log(value);
+
+  const result = await psqlInsert(`template_dok`, `(kode, name, type, keterangan, path)`, value);
+  res.send(result);
 });
