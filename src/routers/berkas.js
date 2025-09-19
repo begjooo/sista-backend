@@ -1,28 +1,26 @@
 import express from "express";
 import fs from "fs";
 import multer from "multer";
+import { taDirPath } from "../handler/berkas.js";
 
 export const router = express.Router();
-const dirPath = `./public/berkas`;
 
-router.post('/:username', (req, res) => {
-  console.log(`post /berkas/:username`);
-  const username = req.params.username;
-  console.log(username);
-  const body = req.body;
-  console.log(body);
-  console.log(req)
-  res.send(true);
+const localStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    if (!fs.existsSync(`${taDirPath}/${req.params.username}`)) {
+      fs.mkdirSync(`${taDirPath}/${req.params.username}`);
+    };
+
+    cb(null, `${taDirPath}/${req.params.username}`);
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${file.originalname}`);
+  },
 });
 
-const mulUpload = multer({ dest: `./uploads` });
+const multerBerkasTa = multer({ storage: localStorage });
 
-router.post('/multer/:username', mulUpload.single('file'), (req, res) => {
-  console.log(`post /berkas/:username`);
-  const username = req.params.username;
-  console.log(username);
-  const body = req.body;
-  console.log(body);
-  console.log(req);
+router.post('/ta/:username', multerBerkasTa.single(`file`), (req, res) => {
+  console.log(`post /ta/:username`);
   res.send(true);
 });

@@ -11,6 +11,7 @@ import { router as routerMhs } from "./src/routers/mhs.js";
 import { router as routerTa } from "./src/routers/ta.js";
 import { router as routerAdministrasi } from "./src/routers/administrasi.js";
 import { router as routerBerkas } from "./src/routers/berkas.js";
+import { initBerkas } from "./src/handler/berkas.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,6 +27,8 @@ app.use(cors({
     'https://1633cff5314d.ngrok-free.app', // ngrok frontend url
   ],
 }));
+
+initBerkas();
 
 await psqlConn();
 await psqlInit();
