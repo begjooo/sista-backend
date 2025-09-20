@@ -50,13 +50,15 @@ router.delete('/', async (req, res) => {
     console.log(error.message)
   };
 
-  fs.unlinkSync(`./public${fileData.path}`);
+  if (fs.existsSync(`./public${fileData.path}`)) {
+    fs.unlinkSync(`./ public${fileData.path}`);
+  };
 
   res.send(true);
 });
 
 router.get('/list', async (req, res) => {
-  console.log(`get /administrasi/list`);
+  console.log(`get / administrasi / list`);
   const psqlTemplateDok = await psql.query(`select * from template_dok`);
   res.send(psqlTemplateDok);
 });

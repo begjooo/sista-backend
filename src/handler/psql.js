@@ -88,6 +88,7 @@ export async function psqlInit() {
       name: `aturan_ta`,
       query: `(
         keterangan varchar primary key,
+        name varchar,
         value varchar
       );`,
     },
@@ -111,12 +112,12 @@ export async function psqlInit() {
   };
 
   await psqlInsert(`dosen`, `(username, password, name, fullname, job)`, `('EE000E', 'admin', 'Admin', 'Admin', 'admin')`);
-  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('max_bimbingan_utama', '6')`);
-  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('jml_penguji', '3')`);
-  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('usulan_tgl_awal', '2025-09-01')`);
-  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('usulan_tgl_akhir', '2025-09-30')`);
-  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('pelaksanaan_tgl_awal', '2025-09-01')`);
-  await psqlInsert(`aturan_ta`, `(keterangan, value)`, `('pelaksanaan_tgl_akhir', '2026-08-31')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, name, value)`, `('max_bimbingan_utama', 'Jumlah Maksimal Pembimbing Utama', '6')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, name, value)`, `('jml_penguji', 'Jumlah Maksimal Penguji Tugas Akhir', '3')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, name, value)`, `('usulan_tgl_awal', 'Usulan Pembimbing', '2025-09-01')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, name, value)`, `('usulan_tgl_akhir', 'Usulan Pembimbing', '2025-09-30')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, name, value)`, `('pelaksanaan_tgl_awal', 'Pelaksanaan Tugas Akhir', '2025-09-01')`);
+  await psqlInsert(`aturan_ta`, `(keterangan, name, value)`, `('pelaksanaan_tgl_akhir', 'Pelaksanaan Tugas Akhir', '2026-08-31')`);
 };
 
 export async function psqlRemove(tableName, username) {

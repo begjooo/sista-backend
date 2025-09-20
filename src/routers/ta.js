@@ -1,6 +1,6 @@
 import express from "express";
 import { mongodbGetList } from "../handler/mongo.js";
-import { psql } from "../handler/psql.js";
+import { psql, psqlInsert } from "../handler/psql.js";
 
 export const router = express.Router();
 
@@ -33,6 +33,37 @@ router.get('/aturan', async (req, res) => {
     console.log(error.message);
     res.send(false);
   };
+});
+
+router.post('/lini-waktu', async (req, res) => {
+  console.log(`post /ta/lini-waktu`);
+  console.log(req.body);
+
+  await psqlInsert(
+    `aturan_ta`,
+    `(keterangan, name, value)`,
+    `('${req.body.awal_ket}', '${req.body.nama}', '${req.body.awal_val}')`
+  );
+
+  await psqlInsert(
+    `aturan_ta`,
+    `(keterangan, name, value)`,
+    `('${req.body.akhir_ket}', '${req.body.nama}', '${req.body.akhir_val}')`
+  );
+
+  res.send(true);
+});
+
+router.get('/lini-waktu', async (req, res) => {
+  console.log(`get /ta/lini-waktu`);
+  const aturanList = await psql.query(`select * from aturan_ta;`);
+  const liniWaktuList = aturanList.filter((item) => item.keterangan.includes(`tgl`));
+  // console.log(liniWaktuList)
+  const groupedLw = Object.groupBy(liniWaktuList, ({ name }) => name);
+  console.log(groupedLw);
+  const objectKeyLw = Object.keys(groupedLw);
+  console.log(objectKeyLw);
+  res.send(liniWaktuList);
 });
 
 router.put('/aturan', async (req, res) => {
